@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Description of `CFMesh` to `README.md`
 - Doxygen-based documentation system
 - Licensed under Apache 2.0
 
