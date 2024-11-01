@@ -17,6 +17,9 @@ include(GNUInstallDirs)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+## Source
+include_directories(include)
+
 ## Tests
 include(CTest)
 if (BUILD_TESTING)
