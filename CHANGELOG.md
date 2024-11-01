@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implement a basic `reader` class that can determine the mesh format it is given
+- `Catch2`-based tests
+- `CMake`-based build system
 - Rename `CFMesh` -> `CFGrid` to avoid confusion with existing mesh generator
 - Initial style guide
 - Description of `CFMesh` to `README.md`
