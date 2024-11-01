@@ -22,7 +22,30 @@ namespace cfg
      *       mesh format and would generally result in an error being raised.
      */
     enum class MeshFormat {GMSH_ASCII, GMSH_BIN, UNKNOWN};
-    
+
+    struct gmsh_header
+    {
+     public:
+      std::string version;
+      bool binary;
+      int dsize;
+
+      gmsh_header(const std::string& version, const bool& binary, const int& dsize) :
+          version(version), binary(binary), dsize(dsize){};
+    };
+
+    class gmsh_header_parser
+    {
+     public:
+      gmsh_header_parser(const std::string& version) : version(version){};
+      [[nodiscard]] const bool is_gmsh_file(const std::filesystem::path& meshfile) const;
+      [[nodiscard]] const std::string get_header(const std::filesystem::path& meshfile) const;
+      [[nodiscard]] const gmsh_header parse_header(const std::string& line) const;
+      [[nodiscard]] const gmsh_header parse_header(const std::filesystem::path& meshfile) const;
+     private:
+      std::string version;  // What version is this parser for?
+    };
+
     /**
      * A custom exception class that is raised by `CFGrid` when given an unknown mesh format.
      */
@@ -65,7 +88,6 @@ namespace cfg
 	}
 
 	fmt = get_format(this->meshfile);
-	get_format(this->meshfile);
 
 	if (MeshFormat::UNKNOWN == fmt)
 	{
@@ -80,47 +102,40 @@ namespace cfg
        * @param meshfile Path that is (potentially) pointing to a mesh file.
        * @returns The `MeshFormat` enum value representing the format of the mesh being read. 
        */
-      [[nodiscard]] const MeshFormat get_format(const std::filesystem::path meshfile)
+      [[nodiscard]] const MeshFormat get_format(const std::filesystem::path &meshfile)
       {
-        // Currently we only support GMSH files, if the path is a directory then
-        // we can immediately discard it
+	/*
+	 * Currently we only support GMSH files, if the path is a directory then
+	 * we can immediately discard it
+	 */
         if (!std::filesystem::is_regular_file(meshfile))
         {
           return MeshFormat::UNKNOWN;
         }
 
-        // Attempt to read GMSH header
-        std::ifstream istream(meshfile);
-        std::string line;
-        std::getline(istream, line);
-        if (line != "$MeshFormat")
-        {
+	/* Are we reading a GMSH file? */
+	const gmsh_header_parser parser("4.1");
+	if (!parser.is_gmsh_file(meshfile))
+	{
           return MeshFormat::UNKNOWN;
-        }
+	}
 
         // GMSH file
-        std::getline(istream, line);
-        std::stringstream ss(line);
-        std::string ver, binflag, dsize;
-        ss >> ver >> binflag >> dsize;
 
-        if (ver == "4.1")
+        auto get_gmsh_format = [](const gmsh_header &header) -> const MeshFormat
         {
-          if (binflag == "0")
+          if (header.binary)
           {
-            fmt = MeshFormat::GMSH_ASCII;
-          }
-          else if (binflag == "1")
-          {
-            fmt = MeshFormat::GMSH_BIN;
+            return MeshFormat::GMSH_BIN;
           }
           else
           {
-            throw std::runtime_error{"Attempting to read malformed GMSH file"};
+            return MeshFormat::GMSH_ASCII;
           }
-        }
-
-        return fmt;
+        };
+	
+	const auto header = parser.parse_header(meshfile);
+	return get_gmsh_format(header);
       }
 
       /**
