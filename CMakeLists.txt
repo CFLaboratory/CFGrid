@@ -4,6 +4,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+## Toolchain settings
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "-g -Og -Wall -Wpedantic -Werror")
+
 ## General configuration
 cmake_minimum_required(VERSION 3.5)
 
