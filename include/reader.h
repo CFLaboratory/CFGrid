@@ -122,7 +122,7 @@ namespace cfg
 
         // GMSH file
 
-        auto get_gmsh_format = [](const gmsh_header &header) -> MeshFormat
+        auto get_gmsh_format = [](const gmsh_header &header) -> const MeshFormat
         {
           if (header.binary)
           {
