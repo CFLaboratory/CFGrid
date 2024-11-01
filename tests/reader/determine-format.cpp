@@ -11,17 +11,33 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Read gmsh ASCII file", "[format]")
-{
-  REQUIRE(false);
-}
+#include <reader.h>
 
-TEST_CASE("Read gmsh binary file", "[format]")
+TEST_CASE("Read gmsh file", "[format]")
 {
-  REQUIRE(false);
+  cfg::reader::reader reader;
+
+  SECTION("Identify ASCII file")
+  {
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.txt"));
+    REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_ASCII);
+  }
+
+  SECTION("Identify binary file")
+  {
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.bin"));
+    REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_BIN);
+  }
 }
 
 TEST_CASE("Reading an unknown format should fail", "[format]")
 {
-  REQUIRE(false);
+  REQUIRE_THROWS_AS(cfg::reader::reader("unknown.msh"),
+		    cfg::reader::unknown_format);
+}
+
+TEST_CASE("Attempting to read a non-existent file should throw a filesystem error", "[format]")
+{
+  REQUIRE_THROWS_AS(cfg::reader::reader("non-existent.msh"),
+		    std::filesystem::filesystem_error);
 }
