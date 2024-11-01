@@ -13,14 +13,21 @@
 
 #include <reader.h>
 
-TEST_CASE("Read gmsh ASCII file", "[format]")
+TEST_CASE("Read gmsh file", "[format]")
 {
-  REQUIRE(false);
-}
+  cfg::reader::reader reader;
 
-TEST_CASE("Read gmsh binary file", "[format]")
-{
-  REQUIRE(false);
+  SECTION("Identify ASCII file")
+  {
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.txt"));
+    REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_ASCII);
+  }
+
+  SECTION("Identify binary file")
+  {
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.bin"));
+    REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_BIN);
+  }
 }
 
 TEST_CASE("Reading an unknown format should fail", "[format]")
