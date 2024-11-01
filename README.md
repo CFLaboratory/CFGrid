@@ -36,6 +36,9 @@ export Catch2_DIR=/path/to/Catch2/lib/cmake/Catch2
 cmake -B build .
 ```
 after which the build system should be able to find `Catch2`.
+If `Catch2` cannot be found the build system will attempt to download it as part of the
+configuration and build `Catch2` alongside `CFGrid`, if this behaviour is undesirable it is advised
+to use the `-DBUILD_TESTING=OFF` configuration option.
 
 Once built, the tests can be run via the `ctest` utility
 ```
@@ -57,3 +60,5 @@ to Doxygen.
 
 `CFGrid` is released under the Apache 2.0 License, see the [LICENSE](LICENSE) file for further
 details.
+Where `CFGrid` includes third-party code this is licensed according to those projects as indicated
+in the code.
