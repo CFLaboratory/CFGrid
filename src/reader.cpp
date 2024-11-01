@@ -10,7 +10,7 @@ namespace cfg
 {
   namespace reader
   {
-    const bool gmsh_header_parser::is_gmsh_file(const std::filesystem::path &meshfile) const
+    [[nodiscard]] const bool gmsh_header_parser::is_gmsh_file(const std::filesystem::path &meshfile) const
     {
       std::ifstream istream(meshfile);
       std::string line;
@@ -18,7 +18,7 @@ namespace cfg
       return (line == "$MeshFormat");
     }
 
-    const std::string gmsh_header_parser::get_header(const std::filesystem::path& meshfile) const
+    [[nodiscard]] const std::string gmsh_header_parser::get_header(const std::filesystem::path& meshfile) const
     {
       /*
        * The header contents should be on line 2: discard line 1 and return
@@ -31,9 +31,9 @@ namespace cfg
       return line;
     }
 
-    const gmsh_header gmsh_header_parser::parse_header(const std::string& line) const
+    [[nodiscard]] const gmsh_header gmsh_header_parser::parse_header(const std::string& line) const
     {
-      auto string2bool = [](const std::string& s) -> bool
+      auto string2bool = [](const std::string& s) -> const bool
       {
 	/* Only strings "0", "1" are treated as valid bools */
 	if (s == "0")
@@ -51,7 +51,7 @@ namespace cfg
       };
 
       /* Deconstruct the header string into components. */
-      auto string2header = [string2bool](const std::string& line, const std::string& version) -> gmsh_header
+      auto string2header = [string2bool](const std::string& line, const std::string& version) -> const gmsh_header
       {
 	std::stringstream ss(line);
 	std::string ver, binflag, dsize;
@@ -69,7 +69,7 @@ namespace cfg
       };
       return string2header(line, version);
     }
-    const gmsh_header gmsh_header_parser::parse_header(const std::filesystem::path& meshfile) const
+    [[nodiscard]] const gmsh_header gmsh_header_parser::parse_header(const std::filesystem::path& meshfile) const
     {
       return parse_header(get_header(meshfile));
     }

@@ -38,10 +38,10 @@ namespace cfg
     {
      public:
       gmsh_header_parser(const std::string& version) : version(version){};
-      const bool is_gmsh_file(const std::filesystem::path& meshfile) const;
-      const std::string get_header(const std::filesystem::path& meshfile) const;
-      const gmsh_header parse_header(const std::string& line) const;
-      const gmsh_header parse_header(const std::filesystem::path& meshfile) const;
+      [[nodiscard]] const bool is_gmsh_file(const std::filesystem::path& meshfile) const;
+      [[nodiscard]] const std::string get_header(const std::filesystem::path& meshfile) const;
+      [[nodiscard]] const gmsh_header parse_header(const std::string& line) const;
+      [[nodiscard]] const gmsh_header parse_header(const std::filesystem::path& meshfile) const;
      private:
       std::string version;  // What version is this parser for?
     };
