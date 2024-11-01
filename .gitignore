@@ -33,3 +33,9 @@
 
 # Doxygen
 man
+
+# CMake
+build
+
+# clangd
+.cache
