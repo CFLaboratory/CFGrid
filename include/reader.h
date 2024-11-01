@@ -64,52 +64,63 @@ namespace cfg
 	  throw std::filesystem::filesystem_error{"Could not find mesh file " + meshfile.string(), ec};
 	}
 
-	fmt = MeshFormat::UNKNOWN;
-	
-	// Attempt to determine the format of the file
-	if (std::filesystem::is_regular_file(this->meshfile))
-	{
-	  // Attempt to read GMSH header
-	  {
-	    std::ifstream istream(this->meshfile);
-	    std::string line;
-	    std::getline(istream, line);
-	    if (line == "$MeshFormat")
-	    {
-	      // GMSH file
-	      std::getline(istream, line);
-	      std::stringstream ss(line);
-	      std::string ver, binflag, dsize;
-	      ss >> ver >> binflag >> dsize;
+	fmt = get_format(this->meshfile);
+	get_format(this->meshfile);
 
-	      if (ver == "4.1")
-	      {
-		if (binflag == "0")
-		{
-		  fmt = MeshFormat::GMSH_ASCII;
-		}
-		else if (binflag == "1")
-		{
-		  fmt = MeshFormat::GMSH_BIN;
-		}
-		else
-		{
-		  throw std::runtime_error{"Attempting to read malformed GMSH file"};
-		}
-	      }
-	    }
-	  }
-
-	  if (MeshFormat::UNKNOWN == fmt)
-	  {
-	    throw cfg::reader::unknown_format{"Reading " + this->meshfile.string() +
-					      " : only GMSH format 4.1 is currently supported"};
-	  }
-	}
-	else
+	if (MeshFormat::UNKNOWN == fmt)
 	{
-	  throw cfg::reader::unknown_format{this->meshfile.string() + " is an unrecognised format"};
+	  throw cfg::reader::unknown_format{"Reading " + this->meshfile.string() +
+					    " : only GMSH format 4.1 is currently supported"};
 	}
+      }
+
+      /**
+       * Utility function to determine the format of a mesh file.
+       *
+       * @param meshfile Path that is (potentially) pointing to a mesh file.
+       * @returns The `MeshFormat` enum value representing the format of the mesh being read. 
+       */
+      [[nodiscard]] const MeshFormat get_format(const std::filesystem::path meshfile)
+      {
+        // Currently we only support GMSH files, if the path is a directory then
+        // we can immediately discard it
+        if (!std::filesystem::is_regular_file(meshfile))
+        {
+          return MeshFormat::UNKNOWN;
+        }
+
+        // Attempt to read GMSH header
+        std::ifstream istream(meshfile);
+        std::string line;
+        std::getline(istream, line);
+        if (line != "$MeshFormat")
+        {
+          return MeshFormat::UNKNOWN;
+        }
+
+        // GMSH file
+        std::getline(istream, line);
+        std::stringstream ss(line);
+        std::string ver, binflag, dsize;
+        ss >> ver >> binflag >> dsize;
+
+        if (ver == "4.1")
+        {
+          if (binflag == "0")
+          {
+            fmt = MeshFormat::GMSH_ASCII;
+          }
+          else if (binflag == "1")
+          {
+            fmt = MeshFormat::GMSH_BIN;
+          }
+          else
+          {
+            throw std::runtime_error{"Attempting to read malformed GMSH file"};
+          }
+        }
+
+        return fmt;
       }
 
       /**
