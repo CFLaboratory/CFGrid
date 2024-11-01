@@ -27,3 +27,7 @@ if (BUILD_TESTING)
 endif()
     
 ## Documentation
+add_custom_target(doc
+  doxygen .doxyfile
+  COMMAND make -C man/latex
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
