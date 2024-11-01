@@ -21,7 +21,7 @@ include(GNUInstallDirs)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ## Source
-include_directories(include)
+add_subdirectory(src)
 
 ## Tests
 include(CTest)
