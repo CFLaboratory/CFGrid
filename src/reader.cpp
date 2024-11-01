@@ -51,24 +51,27 @@ namespace cfg
       };
 
       /* Deconstruct the header string into components. */
-      auto string2header = [string2bool](const std::string& line) -> gmsh_header
+      auto string2header = [string2bool](const std::string& line, const std::string& version) -> gmsh_header
       {
 	std::stringstream ss(line);
 	std::string ver, binflag, dsize;
 	ss >> ver >> binflag >> dsize;
 
+	if (version != ver)
+	{
+	  throw std::runtime_error{"GMSH mesh format in file != expected version: " +
+				   ver +
+				   " vs " +
+				   version};
+	}
+
 	return gmsh_header{ver, string2bool(binflag), std::stoi(dsize)};
       };
-      return string2header(line);
+      return string2header(line, version);
     }
     const gmsh_header gmsh_header_parser::parse_header(const std::filesystem::path& meshfile) const
     {
       return parse_header(get_header(meshfile));
-    }
-
-    const bool gmsh_header_parser::validate_header(const gmsh_header& header) const
-    {
-      return header.version == version;
     }
   }
 }
