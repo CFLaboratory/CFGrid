@@ -47,14 +47,14 @@
 
 ## Functions and subroutines
 
-Although `C/C++` don't *explicitly* distinguish functions and subroutines `CFMesh` code should be
+Although `C/C++` don't *explicitly* distinguish functions and subroutines `CFGrid` code should be
 written with this distinction.
 
 Functions MUST return a value and MUST NOT modify their inputs.
-In `CFMesh` functions should be written using the following `C++` features to enforce this:
+In `CFGrid` functions should be written using the following `C++` features to enforce this:
 `[[nodiscard]]` to prevent calling code from ignoring return values, and use of `const` to prevent
 modification of parameters.
-As an example a `CFMesh` function could look like:
+As an example a `CFGrid` function could look like:
 ```
 [[nodiscard]] int f(const int x)
 {
