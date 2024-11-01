@@ -23,7 +23,90 @@ namespace cfg
      *       mesh format and would generally result in an error being raised.
      */
     enum class MeshFormat {GMSH_ASCII, GMSH_BIN, UNKNOWN};
-    
+
+    struct gmsh_header
+    {
+     public:
+      std::string version;
+      bool binary;
+      int dsize;
+
+      gmsh_header(const std::string& version,
+                  const bool& binary,
+                  const int& dsize)
+          : version(version), binary(binary), dsize(dsize){};
+    };
+
+    class gmsh_header_parser
+    {
+     public:
+      gmsh_header_parser(const std::string& version) : version(version){};
+
+      bool is_gmsh_file(const std::filesystem::path& meshfile) const
+      {
+        std::ifstream istream(meshfile);
+        std::string line;
+        std::getline(istream, line);
+        return (line == "$MeshFormat");
+      }
+
+      const std::string get_header(const std::filesystem::path& meshfile) const
+      {
+        /*
+         * The header contents should be on line 2: discard line 1 and return
+         * line 2.
+         */
+        std::ifstream istream(meshfile);
+        std::string line;
+        std::getline(istream, line);  // discard
+        std::getline(istream, line);
+        return line;
+      }
+
+      const gmsh_header parse_header(const std::string& line) const
+      {
+        auto string2bool = [](const std::string& s) -> bool
+        {
+          /* Only strings "0", "1" are treated as valid bools */
+          if (s == "0")
+          {
+            return false;
+          }
+          else if (s == "1")
+          {
+            return true;
+          }
+          else
+          {
+            throw std::runtime_error{"Can't convert string to bool: " + s};
+          }
+        };
+
+        /* Deconstruct the header string into components. */
+        auto string2header = [string2bool](const std::string& line) -> gmsh_header
+        {
+          std::stringstream ss(line);
+          std::string ver, binflag, dsize;
+          ss >> ver >> binflag >> dsize;
+
+          return gmsh_header{ver, string2bool(binflag), std::stoi(dsize)};
+        };
+        return string2header(line);
+      }
+      const gmsh_header parse_header(const std::filesystem::path& meshfile) const
+      {
+        return parse_header(get_header(meshfile));
+      }
+
+      const bool validate_header(const gmsh_header& header) const
+      {
+        return header.version == version;
+      }
+
+     private:
+      std::string version;  // What version is this parser for?
+    };
+
     /**
      * A custom exception class that is raised by `CFGrid` when given an unknown mesh format.
      */
@@ -92,77 +175,17 @@ namespace cfg
         }
 
 	/* Are we reading a GMSH file? */
-	auto is_gmsh_file = [](const std::filesystem::path &meshfile) -> bool
-	{
-	  std::ifstream istream(meshfile);
-	  std::string line;
-	  std::getline(istream, line);
-	  return (line == "$MeshFormat");
-	};
-	if (!is_gmsh_file(meshfile))
+	const gmsh_header_parser parser("4.1");
+	if (!parser.is_gmsh_file(meshfile))
 	{
           return MeshFormat::UNKNOWN;
 	}
 
         // GMSH file
 
-	auto get_gmsh_header = [](const std::filesystem::path &meshfile) -> std::string
-	{
-	  /*
-	   * The header contents should be on line 2: discard line 1 and return line 2.
-	   */
-	  std::ifstream istream(meshfile);
-	  std::string line;
-	  std::getline(istream, line); // discard
-	  std::getline(istream, line);
-	  return line;
-	};
-
-        auto parse_gmsh_header = [](const std::string &line) -> std::tuple<std::string,
-									  bool,
-									  int>
+        auto get_gmsh_format = [](const gmsh_header &header) -> MeshFormat
         {
-          auto string2bool = [](const std::string &s) -> bool
-          {
-	    /* Only strings "0", "1" are treated as valid bools */
-            if (s == "0")
-            {
-              return false;
-            }
-            else if (s == "1")
-            {
-              return true;
-            }
-            else
-            {
-              throw std::runtime_error{"Can't convert string to bool: " + s};
-            }
-          };
-
-	  auto string2header = [string2bool](const std::string &line) -> std::tuple<std::string,
-	                                                                            bool,
-										    int>
-	  {
-	    /* Deconstruct the header string into typed components. */
-	    std::stringstream ss(line);
-	    std::string ver, binflag, dsize;
-	    ss >> ver >> binflag >> dsize;
-	    return std::tuple<std::string, bool, int>{ver, string2bool(binflag), std::stoi(dsize)};
-	  };
-	  return string2header(line);
-        };
-
-        auto validate_gmsh_header = [](const std::tuple<std::string, bool, int> header) ->
-	  MeshFormat
-        {
-	  auto [ver, binflag, dsize] = header;
-
-          if (ver != "4.1")
-          {
-            return MeshFormat::UNKNOWN;
-          }
-
-          if (binflag)
+          if (header.binary)
           {
             return MeshFormat::GMSH_BIN;
           }
@@ -172,9 +195,8 @@ namespace cfg
           }
         };
 	
-	const auto header_line = get_gmsh_header(meshfile);
-	const auto header = parse_gmsh_header(header_line);
-	return validate_gmsh_header(header);
+	const auto header = parser.parse_header(meshfile);
+	return get_gmsh_format(header);
       }
 
       /**
