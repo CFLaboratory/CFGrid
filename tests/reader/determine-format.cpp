@@ -19,13 +19,13 @@ TEST_CASE("Read gmsh file", "[format]")
 
   SECTION("Identify ASCII file")
   {
-    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.txt"));
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box-txt.msh"));
     REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_ASCII);
   }
 
   SECTION("Identify binary file")
   {
-    REQUIRE_NOTHROW(reader = cfg::reader::reader("box.msh.bin"));
+    REQUIRE_NOTHROW(reader = cfg::reader::reader("box-bin.msh"));
     REQUIRE(reader.format() == cfg::reader::MeshFormat::GMSH_BIN);
   }
 }
