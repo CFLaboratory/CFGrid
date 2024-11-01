@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <tuple>
 
 namespace cfg
 {
@@ -65,7 +66,6 @@ namespace cfg
 	}
 
 	fmt = get_format(this->meshfile);
-	get_format(this->meshfile);
 
 	if (MeshFormat::UNKNOWN == fmt)
 	{
@@ -80,47 +80,101 @@ namespace cfg
        * @param meshfile Path that is (potentially) pointing to a mesh file.
        * @returns The `MeshFormat` enum value representing the format of the mesh being read. 
        */
-      [[nodiscard]] const MeshFormat get_format(const std::filesystem::path meshfile)
+      [[nodiscard]] const MeshFormat get_format(const std::filesystem::path &meshfile)
       {
-        // Currently we only support GMSH files, if the path is a directory then
-        // we can immediately discard it
+	/*
+	 * Currently we only support GMSH files, if the path is a directory then
+	 * we can immediately discard it
+	 */
         if (!std::filesystem::is_regular_file(meshfile))
         {
           return MeshFormat::UNKNOWN;
         }
 
-        // Attempt to read GMSH header
-        std::ifstream istream(meshfile);
-        std::string line;
-        std::getline(istream, line);
-        if (line != "$MeshFormat")
-        {
+	/* Are we reading a GMSH file? */
+	auto is_gmsh_file = [](const std::filesystem::path &meshfile) -> bool
+	{
+	  std::ifstream istream(meshfile);
+	  std::string line;
+	  std::getline(istream, line);
+	  return (line == "$MeshFormat");
+	};
+	if (!is_gmsh_file(meshfile))
+	{
           return MeshFormat::UNKNOWN;
-        }
+	}
 
         // GMSH file
-        std::getline(istream, line);
-        std::stringstream ss(line);
-        std::string ver, binflag, dsize;
-        ss >> ver >> binflag >> dsize;
 
-        if (ver == "4.1")
+	auto get_gmsh_header = [](const std::filesystem::path &meshfile) -> std::string
+	{
+	  /*
+	   * The header contents should be on line 2: discard line 1 and return line 2.
+	   */
+	  std::ifstream istream(meshfile);
+	  std::string line;
+	  std::getline(istream, line); // discard
+	  std::getline(istream, line);
+	  return line;
+	};
+
+        auto parse_gmsh_header = [](const std::string &line) -> std::tuple<std::string,
+									  bool,
+									  int>
         {
-          if (binflag == "0")
+          auto string2bool = [](const std::string &s) -> bool
           {
-            fmt = MeshFormat::GMSH_ASCII;
+	    /* Only strings "0", "1" are treated as valid bools */
+            if (s == "0")
+            {
+              return false;
+            }
+            else if (s == "1")
+            {
+              return true;
+            }
+            else
+            {
+              throw std::runtime_error{"Can't convert string to bool: " + s};
+            }
+          };
+
+	  auto string2header = [string2bool](const std::string &line) -> std::tuple<std::string,
+	                                                                            bool,
+										    int>
+	  {
+	    /* Deconstruct the header string into typed components. */
+	    std::stringstream ss(line);
+	    std::string ver, binflag, dsize;
+	    ss >> ver >> binflag >> dsize;
+	    return std::tuple<std::string, bool, int>{ver, string2bool(binflag), std::stoi(dsize)};
+	  };
+	  return string2header(line);
+        };
+
+        auto validate_gmsh_header = [](const std::tuple<std::string, bool, int> header) ->
+	  MeshFormat
+        {
+	  auto [ver, binflag, dsize] = header;
+
+          if (ver != "4.1")
+          {
+            return MeshFormat::UNKNOWN;
           }
-          else if (binflag == "1")
+
+          if (binflag)
           {
-            fmt = MeshFormat::GMSH_BIN;
+            return MeshFormat::GMSH_BIN;
           }
           else
           {
-            throw std::runtime_error{"Attempting to read malformed GMSH file"};
+            return MeshFormat::GMSH_ASCII;
           }
-        }
-
-        return fmt;
+        };
+	
+	const auto header_line = get_gmsh_header(meshfile);
+	const auto header = parse_gmsh_header(header_line);
+	return validate_gmsh_header(header);
       }
 
       /**
