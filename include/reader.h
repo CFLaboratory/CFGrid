@@ -43,7 +43,6 @@ namespace cfg
       const std::string get_header(const std::filesystem::path& meshfile) const;
       const gmsh_header parse_header(const std::string& line) const;
       const gmsh_header parse_header(const std::filesystem::path& meshfile) const;
-      const bool validate_header(const gmsh_header& header) const;
      private:
       std::string version;  // What version is this parser for?
     };
