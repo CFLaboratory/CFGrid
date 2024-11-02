@@ -62,3 +62,7 @@ to Doxygen.
 details.
 Where `CFGrid` includes third-party code this is licensed according to those projects as indicated
 in the code.
+
+# Acknowledgment
+
+The development of `CFGrid` is funded by EPCC, The University of Edinburgh.
