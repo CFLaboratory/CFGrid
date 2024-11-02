@@ -44,13 +44,48 @@ namespace cfg
           version(version), binary(binary), dsize(dsize){};
     };
 
+    /**
+     * A versioned parser for GMSH file headers.
+     */
     class gmsh_header_parser
     {
      public:
+      /**
+       * Constructor for the `gmsh_header_parser`, specifies the GMSH format version the parser is
+       * intended for.
+       */
       gmsh_header_parser(const std::string& version) : version(version){};
+
+      /**
+       * Determines if a file is a GMSH mesh file.
+       *
+       * @param meshfile The path to the file.
+       * @returns        Flag indicating whether `meshfile` is a GMSH mesh file or not.
+       */
       [[nodiscard]] const bool is_gmsh_file(const std::filesystem::path& meshfile) const;
+
+      /**
+       * Extracts the header from a GMSH mesh file.
+       *
+       * @param meshfile The path to the file.
+       * @returns        The header string.
+       */
       [[nodiscard]] const std::string get_header(const std::filesystem::path& meshfile) const;
+
+      /**
+       * Parses the header string of a GMSH mesh file.
+       *
+       * @param line The header string.
+       * @returns    The GMSH header data structure.
+       */
       [[nodiscard]] const gmsh_header parse_header(const std::string& line) const;
+
+      /**
+       * Convenience function to parse out the header of a GMSH mesh file given the file path.
+       *
+       * @param meshfile The path to the file.
+       * @returns        The GMSH header data structure.
+       */
       [[nodiscard]] const gmsh_header parse_header(const std::filesystem::path& meshfile) const;
      private:
       std::string version;  // What version is this parser for?
