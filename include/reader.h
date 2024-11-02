@@ -23,13 +23,23 @@ namespace cfg
      */
     enum class MeshFormat {GMSH_ASCII, GMSH_BIN, UNKNOWN};
 
+    /**
+     * A structure containing the header contents of a GMSH mesh file.
+     */
     struct gmsh_header
     {
      public:
-      std::string version;
-      bool binary;
-      int dsize;
+      std::string version; ///< The GMSH mesh file format version.
+      bool binary;         ///< Flag indicating whether the mesh file is in binary or ASCII format.
+      int dsize;           ///< Value indicating the number of bytes used for floating point numbers.
 
+      /**
+       * Constructor for the `gmsh_header` object.
+       *
+       * @param version A version string, for example "4.1".
+       * @param binary  A flag indicating whether the file is in binary or ASCII format.
+       * @param dsize   The size in bytes of floating point numbers in the file.
+       */
       gmsh_header(const std::string& version, const bool& binary, const int& dsize) :
           version(version), binary(binary), dsize(dsize){};
     };
