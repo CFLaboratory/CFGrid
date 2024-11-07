@@ -52,6 +52,6 @@ if (NOT Catch2_FOUND)
   # End Catch2 code
   #
 endif()
-
 include(Catch)
+
 add_subdirectory(reader)
