@@ -4,34 +4,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <fstream>
+#include <sstream>
+
 #include <reader.h>
 
 namespace cfg
 {
   namespace reader
   {
-    [[nodiscard]] const bool gmsh_header_parser::is_gmsh_file(const std::filesystem::path &meshfile) const
-    {
-      std::ifstream istream(meshfile);
-      std::string line;
-      std::getline(istream, line);
-      return (line == "$MeshFormat");
-    }
-
-    [[nodiscard]] const std::string gmsh_header_parser::get_header(const std::filesystem::path& meshfile) const
-    {
-      /*
-       * The header contents should be on line 2: discard line 1 and return
-       * line 2.
-       */
-      std::ifstream istream(meshfile);
-      std::string line;
-      std::getline(istream, line);  // discard
-      std::getline(istream, line);
-      return line;
-    }
-
-    [[nodiscard]] const gmsh_header gmsh_header_parser::parse_header(const std::string& line) const
+    [[nodiscard]] const GmshHeader GmshHeaderParser::parse_header(const std::string& line) const
     {
       auto string2bool = [](const std::string& s) -> const bool
       {
@@ -51,7 +33,7 @@ namespace cfg
       };
 
       /* Deconstruct the header string into components. */
-      auto string2header = [string2bool](const std::string& line, const std::string& version) -> const gmsh_header
+      auto string2header = [string2bool](const std::string& line, const std::string& version) -> const GmshHeader
       {
 	std::stringstream ss(line);
 	std::string ver, binflag, dsize;
@@ -65,13 +47,24 @@ namespace cfg
 				   version};
 	}
 
-	return gmsh_header{ver, string2bool(binflag), std::stoi(dsize)};
+	return GmshHeader{ver, string2bool(binflag), std::stoi(dsize)};
       };
       return string2header(line, version);
     }
-    [[nodiscard]] const gmsh_header gmsh_header_parser::parse_header(const std::filesystem::path& meshfile) const
+
+    [[nodiscard]] const GmshHeader GmshReader::read_header(const std::filesystem::path& meshfile) const
     {
-      return parse_header(get_header(meshfile));
+      /*
+       * The header contents should be on line 2: discard line 1 and return
+       * line 2.
+       */
+      std::ifstream istream(meshfile);
+      std::string line;
+      std::getline(istream, line);  // discard
+      std::getline(istream, line);
+      
+      const GmshHeaderParser parser("4.1");
+      return parser.parse_header(line);
     }
   }
 }
