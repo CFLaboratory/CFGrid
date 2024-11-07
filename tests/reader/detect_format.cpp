@@ -57,7 +57,7 @@ TEST_CASE("Detect gmsh file", "[format]")
 TEST_CASE("Error handling in mesh format detection", "[format]")
 {
   const cfg::reader::FormatDetector detector;
-  
+
   SECTION("Unknown mesh format")
   {
     REQUIRE_THROWS_AS(detector.get_format("unknown.msh"), cfg::reader::unknown_format);
@@ -65,6 +65,6 @@ TEST_CASE("Error handling in mesh format detection", "[format]")
 
   SECTION("Missing mesh file")
   {
-  REQUIRE_THROWS_AS(detector.get_format("non-existent.msh"), std::filesystem::filesystem_error);
+    REQUIRE_THROWS_AS(detector.get_format("non-existent.msh"), std::filesystem::filesystem_error);
   }
 }
