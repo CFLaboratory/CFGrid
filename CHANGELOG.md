@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add clang-format and clang-tidy configurations to support consistent code style
 - Implement a basic `reader` class that can determine the mesh format it is given
 - `Catch2`-based tests
 - `CMake`-based build system
