@@ -54,4 +54,14 @@ if (NOT Catch2_FOUND)
 endif()
 include(Catch)
 
+## Test definition
+function(define_test test_name test_file)
+  add_executable(${test_name} ${test_file})
+  target_link_libraries(${test_name} PRIVATE cfgrid)
+  add_dependencies(${test_name} test_inputs)
+  target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
+  catch_discover_tests(${test_name}
+  WORKING_DIRECTORY ${CFG_TESTS_DIR}/inputs)
+endfunction()
+
 add_subdirectory(reader)

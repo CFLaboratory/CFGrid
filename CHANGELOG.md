@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Implement a basic `SectionReader` to read GMSH mesh sections
+- Implement a basic `Parser` class that can parse GMSH headers
 - Add clang-format and clang-tidy configurations to support consistent code style
-- Implement a basic `reader` class that can determine the mesh format it is given
+- Implement a basic `FormatDetector` class that can determine the mesh format it is given
 - `Catch2`-based tests
 - `CMake`-based build system
 - Rename `CFMesh` -> `CFGrid` to avoid confusion with existing mesh generator
