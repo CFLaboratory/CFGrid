@@ -57,7 +57,7 @@ include(Catch)
 ## Test definition
 function(define_test test_name test_file)
   add_executable(${test_name} ${test_file})
-  target_link_libraries(${test_name} PRIVATE cfgrid)
+  target_link_libraries(${test_name} PRIVATE libcfg)
   add_dependencies(${test_name} test_inputs)
   target_link_libraries(${test_name} PRIVATE Catch2::Catch2WithMain)
   catch_discover_tests(${test_name}
