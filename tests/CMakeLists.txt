@@ -65,3 +65,5 @@ function(define_test test_name test_file)
 endfunction()
 
 add_subdirectory(reader)
+add_subdirectory(utils)
+add_subdirectory(internals)

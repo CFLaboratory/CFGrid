@@ -29,24 +29,25 @@ namespace cfg::reader
      * @param sr The `SectionReader` object that is reading a section from the `std::istream`.
      * @param is The `std::istream` that is being read.
      */
-    SectionReaderExtractor(SR& reader, std::istream& stream) : reader(reader), stream(stream) {}
+    SectionReaderExtractor(const SR& reader, std::istream& stream) : reader(reader), stream(stream) {}
 
     /**
      * Extraction operator, extracts an item from the underlying stream.
      *
-     * @param str The string to extract the item into.
+     * @param str The destination to extract the item into.
      * @returns   The stream reference.
      */
-    std::istream& operator>>(std::string& str)
+    template <class T>
+    std::istream& operator>>(T& val)
     {
-      return reader.pop_word(stream, str);
+      return reader.pop_word(stream, val);
     }
 
    private:
     // Generally we should not capture a reference as part of a class/structure, however this is a
     // temporary object that exists only to implement the operator>> for SectionReader and this
     // temporary capture should be OK.
-    SR& reader;            // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
+    const SR& reader;      // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     std::istream& stream;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
   };
 
@@ -63,7 +64,7 @@ namespace cfg::reader
      * Constructs a `SectionReader` object.
      *
      * @param section_name The identifier for the section, i.e. this will read between
-     * `$section_name` and `$Endsection_name` in the GMSH file.
+     *                     `$section_name` and `$Endsection_name` in the GMSH file.
      * @param mesh_data Stream to read mesh from.
      */
     SectionReader(const std::string& section_name, std::istream& mesh_data)
@@ -117,7 +118,7 @@ namespace cfg::reader
      * @param pos The position to go to, reltive to section start: e.g. `pos=0` would go to the
      *            start of the section.
      */
-    void seekg(std::istream& mesh_data, const std::istream::pos_type pos)
+    void seekg(std::istream& mesh_data, const std::istream::pos_type pos) const
     {
       clear(mesh_data);
       mesh_data.seekg(start + pos);
@@ -128,16 +129,27 @@ namespace cfg::reader
      * `EOF`.
      *
      * @param mesh_data The stream being read.
-     * @param str       The string the word is inserted into.
+     * @param val       The destination the word is inserted into.
      * @returns         The stream.
      */
-    [[nodiscard]] std::istream& pop_word(std::istream& mesh_data, std::string& str)
+    template <class T>
+    [[nodiscard]] std::istream& pop_word(std::istream& mesh_data, T& val) const
     {
       ffwd(mesh_data);
-      mesh_data >> str;
-      found_end = is_section_end(mesh_data, str);
+      mesh_data >> val;
 
-      if (mesh_data.eof() && !found_end)
+      return mesh_data;
+    }
+    [[nodiscard]] std::istream& pop_word(std::istream& mesh_data, std::string& val) const
+    {
+      ffwd(mesh_data);
+      mesh_data >> val;
+
+      if (is_section_end(val))
+      {
+        set_end(mesh_data);
+      }
+      else if (mesh_data.eof())
       {
         throw std::runtime_error{"Read to EOF without finding section end"};
       }
@@ -151,26 +163,50 @@ namespace cfg::reader
      * @param mesh_data The stream being read.
      * @returns         A (temporary) `SectionReaderExtractor`.
      */
-    [[nodiscard]] SectionReaderExtractor<SectionReader> operator()(std::istream& mesh_data)
+    [[nodiscard]] SectionReaderExtractor<SectionReader> operator()(std::istream& mesh_data) const
     {
       return {*this, mesh_data};
+    }
+
+    /**
+     * Reads a line from the mesh stream, returning as a function.
+     *
+     * @param mesh_data The stream being read.
+     * @returns         The current line.
+     *
+     * @note The `std::getline` calling convention takes `line` as a return parameter, however it
+     *       seems more natural to return it directly. The `std::getline` calling convention could
+     *       be implemented as an overload of this if required.
+     */
+    [[nodiscard]] std::string getline(std::istream& mesh_data) const
+    {
+      std::string line;
+      std::getline(mesh_data, line);
+
+      if (is_section_end(line))
+      {
+        set_end(mesh_data);
+      }
+
+      return line;
     }
 
    private:
     std::string start_sygil;       // Identifies the start of the section
     std::string end_sygil;         // Identifies the end of the section
     std::istream::pos_type start;  // Locates the start of the section in the stream
-    bool found_end = false;        // Flag to indicate the section end was found
 
     /**
-     * Clears any status flags on the stream and the `SectionReader` itself.
+     * Clears any status flags on the stream itself.
      *
      * @param mesh_data The mesh stream.
      */
-    void clear(std::istream& mesh_data)
+    // This could be static, but the idea of the SectionReader is to have some state wrt the section
+    // being read, and this would defeat the purpose.
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    void clear(std::istream& mesh_data) const
     {
       mesh_data.clear();  // Reset data stream flags
-      found_end = false;
     }
 
     /**
@@ -178,7 +214,7 @@ namespace cfg::reader
      *
      * @param mesh_data The mesh stream.
      */
-    void ffwd(std::istream& mesh_data)
+    void ffwd(std::istream& mesh_data) const
     {
       if (mesh_data.tellg() < start)
       {
@@ -189,20 +225,25 @@ namespace cfg::reader
     /**
      * Tests whether the end of the section was read.
      *
-     * @param mesh_data The mesh stream.
-     * @param str       The string to test.
-     * @returns Flag indicating whether the end of the section was read (`true`) or not (`false`).
+     * @param str The string to test.
+     * @returns   Flag indicating whether the end of the section was read (`true`) or not (`false`).
      */
-    [[nodiscard]] bool is_section_end(std::istream& mesh_data, const std::string& str)
+    [[nodiscard]] bool is_section_end(const std::string& str) const
     {
-      if (str != end_sygil)
-      {
-        return false;
-      }
+      return str == end_sygil;
+    }
 
-      // End of section, treat as EOF by seeking EOF.
+    /**
+     * Sets the EOF condition on the stream, indicating the end of section was reached.
+     *
+     * @param mesh_data The mesh stream.
+     */
+    // This could be static, but the idea of the SectionReader is to have some state wrt the section
+    // being read, and this would defeat the purpose.
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+    void set_end(std::istream& mesh_data) const
+    {
       mesh_data.seekg(0, std::ios::end);
-      return true;
     }
   };
 }  // namespace cfg::reader

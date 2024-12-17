@@ -54,7 +54,6 @@ namespace cfg::reader
     std::getline(istream, line);  // discard
     std::getline(istream, line);
 
-    const GmshHeaderParser parser("4.1");
-    return parser.parse_header(line);
+    return GmshHeaderParser{"4.1"}.parse_header(line);
   }
 }  // namespace cfg::reader
