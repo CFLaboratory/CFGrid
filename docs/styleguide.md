@@ -45,6 +45,35 @@
 >    In addition, suggestions have been incorporated from a number of people including Robert Ullmann,
 >    Thomas Narten, Neal McBurnett, and Robert Elz.
 
+The coding style used in `CFGrid` is generally based on the
+[https://isocpp.github.io/CppCoreGuidelines/](C++ core guidelines) as applied by the `clang-tidy`
+tool.
+Code MUST conform to the style enforced by `clang-tidy`, in exceptional circumstances where this is
+not possible the specific checks should be disabled with a comment to explain the intention, *e.g.*
+```
+// We are converting the argv char* array to a vector so we cannot avoid the use of C-style arrays
+// here.
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
+[[nodiscard]] std::vector<std::string> get_argvector(int argc, const char* argv[])
+{
+  if (argc < 2)
+  {
+    throw std::runtime_error("CFGrid requires at least one argument - the mesh file to read");
+  }
+
+  // Extract arguments, dropping program name (argv[0])
+  std::vector<std::string> args(argc - 1);
+  for (int i = 1; i < argc; i++)
+  {
+    // Apparently in C++20 we could use a span to resolve this, but currently we are trying to stick
+    // to C++17.
+    args[i - 1] = std::string(argv[i]);  // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+  }
+
+  return args;
+}
+```
+
 ## Functions and subroutines
 
 Although `C/C++` don't *explicitly* distinguish functions and subroutines `CFGrid` code should be
@@ -94,3 +123,15 @@ Global variables SHOULD be avoided as far as possible, and even more so modifyin
 limited.
 Functions MUST NOT modify global variables - which should be avoided anyway - *i.e.* functions
 should be *pure*.
+
+## Formatting
+
+Basic code formatting is employed via `clang-format`, this ensures that all code is formatted
+consistently.
+In addition to the formatting applied by `clang-format`, the `CFGrid` code follows the convention
+that `class`es and `struct`s are written in `CamelCase`; variables, functions and methods are
+written in `snake_case`, e.g.
+```
+SomeClass the_thing;
+the_thing.do_something();
+```
