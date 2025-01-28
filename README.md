@@ -71,6 +71,10 @@ the generated documentation is then available under `man/html/index.html` as a n
 and `man/latex/refman.pdf` as a PDF formatted file, note this requires a latex compiler in addition
 to Doxygen.
 
+# Contributing
+
+Although `CFGrid` is still in early development, contributions are welcome.
+
 # License
 
 `CFGrid` is released under the Apache 2.0 License, see the [LICENSE](LICENSE) file for further
