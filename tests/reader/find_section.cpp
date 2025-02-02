@@ -39,9 +39,9 @@ TEST_CASE("Locate section", "[section]")
     "0 2 0 1\n"
     );
 
-  cfg::reader::SectionReader format_reader("MeshFormat", ss);
-  cfg::reader::SectionReader entities_reader("Entities", ss);
-  cfg::reader::SectionReader nodes_reader("Nodes", ss);
+  const cfg::reader::SectionReader format_reader("MeshFormat", ss);
+  const cfg::reader::SectionReader entities_reader("Entities", ss);
+  const cfg::reader::SectionReader nodes_reader("Nodes", ss);
 
   SECTION("Find section start")
   {
@@ -100,6 +100,15 @@ TEST_CASE("Locate section", "[section]")
     };
     REQUIRE_THROWS(run());
   }
+
+  SECTION("Read line from a section")
+  {
+    format_reader.seekg(ss, 0);
+    const auto firstline = format_reader.getline(ss);
+    REQUIRE(firstline == "$MeshFormat");
+    const auto bodyline = format_reader.getline(ss);
+    REQUIRE(bodyline == "4.1 0 8");
+  }
 }
 
 // These are closer to integration tests
@@ -107,9 +116,9 @@ TEST_CASE("Read and locate section in ASCII mesh", "[section, ASCII]")
 {
   std::ifstream ifs{"box-txt.msh"}; // Open ASCII mesh file for reading
 
-  cfg::reader::SectionReader format_reader("MeshFormat", ifs);
-  cfg::reader::SectionReader entities_reader("Entities", ifs);
-  cfg::reader::SectionReader nodes_reader("Nodes", ifs);
+  const cfg::reader::SectionReader format_reader("MeshFormat", ifs);
+  const cfg::reader::SectionReader entities_reader("Entities", ifs);
+  const cfg::reader::SectionReader nodes_reader("Nodes", ifs);
 
   SECTION("Find section start")
   {
@@ -167,9 +176,9 @@ TEST_CASE("Read and locate section in binary mesh", "[section, binary]")
 {
   std::ifstream ifs{"box-bin.msh", std::ios::binary}; // Open binary mesh file
 
-  cfg::reader::SectionReader format_reader("MeshFormat", ifs);
-  cfg::reader::SectionReader entities_reader("Entities", ifs);
-  cfg::reader::SectionReader nodes_reader("Nodes", ifs);
+  const cfg::reader::SectionReader format_reader("MeshFormat", ifs);
+  const cfg::reader::SectionReader entities_reader("Entities", ifs);
+  const cfg::reader::SectionReader nodes_reader("Nodes", ifs);
 
   SECTION("Find section start")
   {

@@ -36,6 +36,7 @@ man
 
 # CMake
 build
+build.*
 
 # clangd
 .cache

@@ -9,6 +9,9 @@
 #include <filesystem>
 #include <string>
 #include <utility>
+#include <fstream>
+
+#include <node_parser.h>
 
 namespace cfg::reader
 {
@@ -57,12 +60,27 @@ namespace cfg::reader
   };
 
   /**
+   * Reads a GMSH file.
    */
   class GmshReader
   {
-    GmshReader(const std::filesystem::path& meshfile)
+  public:
+    GmshReader(const std::filesystem::path& mesh_file, const cfg::utils::Parallel& parallel)
     {
-      const GmshHeader header = read_header(meshfile);
+      const GmshHeader header = read_header(mesh_file);
+
+      if (header.binary)
+      {
+	// Binary
+	std::ifstream mesh_stream{mesh_file, std::ios::in | std::ios::binary};
+	cfg::parser::read_nodes(mesh_stream, cfg::parser::Mode::BINARY, parallel);
+      }
+      else
+      {
+	// ASCII
+	std::ifstream mesh_stream{mesh_file};
+	cfg::parser::read_nodes(mesh_stream, cfg::parser::Mode::ASCII, parallel);
+      }
     }
 
    private:

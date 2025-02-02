@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added parallel (MPI-based) node reading
 - Add `CONTRIBUTING.md` guide
 - Implement a basic `SectionReader` to read GMSH mesh sections
 - Implement a basic `Parser` class that can parse GMSH headers
