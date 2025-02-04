@@ -40,3 +40,6 @@ build.*
 
 # clangd
 .cache
+
+# emacs
+.dir-locals.el
