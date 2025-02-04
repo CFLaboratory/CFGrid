@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+## [0.1] - 2025-02-04
+
+### Added
 
 - Implemented parallel (MPI-only) node reading for GMSH meshes
 - Added a `CONTRIBUTING.md` guide
