@@ -65,6 +65,12 @@ namespace cfg::reader
   class GmshReader
   {
   public:
+    /**
+     * Constructs a `GmshReader` object.
+     *
+     * @param mesh_file The filepath to a GMSH file (assumed valid).
+     * @param parallel  The parallel environment.
+     */
     GmshReader(const std::filesystem::path& mesh_file, const cfg::utils::Parallel& parallel)
     {
       const GmshHeader header = read_header(mesh_file);

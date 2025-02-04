@@ -34,5 +34,5 @@ endif()
 ## Documentation
 add_custom_target(doc
   doxygen .doxyfile
-  COMMAND make -C man/latex
+  # COMMAND make -k -C man/latex
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

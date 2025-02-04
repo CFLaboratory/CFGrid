@@ -50,11 +50,14 @@ namespace cfg::utils
                               }) == last;
   }
 
+  /**
+   * A structure describing the parallel environment.
+   */
   struct Parallel
   {
    public:
-    unsigned int rank;
-    unsigned int size;
+    unsigned int rank;  ///< ID of this processing element (PE) in the parallel environment.
+    unsigned int size;  ///< Size of the parallel environment (how many PEs?).
   };
 
   /**

@@ -49,10 +49,17 @@ namespace cfg::parser
   template <unsigned int d>
   struct Node
   {
-    size_t idx;
-    std::array<double, d> x;
+    size_t idx;               ///< The index of the node
+    std::array<double, d> x;  ///< The node coordinates
   };
 
+  /**
+   * Reads the nodes from a mesh file.
+   *
+   * @param mesh_stream The data stream associated with the mesh file.
+   * @param mode        Flag indicating whether the file was opened in ASCII or binary mode.
+   * @param parallel    The parallel environment.
+   */
   void read_nodes(std::ifstream& mesh_stream, const Mode mode, const cfg::utils::Parallel& parallel);
 }  // namespace cfg::parser
 

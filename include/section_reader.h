@@ -26,15 +26,15 @@ namespace cfg::reader
      * Constructs a `SectionReaderExtractor` for a `SectionReader` and associated `std::istream`
      * object.
      *
-     * @param sr The `SectionReader` object that is reading a section from the `std::istream`.
-     * @param is The `std::istream` that is being read.
+     * @param reader The `SectionReader` object that is reading a section from the `std::istream`.
+     * @param stream The `std::istream` that is being read.
      */
     SectionReaderExtractor(const SR& reader, std::istream& stream) : reader(reader), stream(stream) {}
 
     /**
      * Extraction operator, extracts an item from the underlying stream.
      *
-     * @param str The destination to extract the item into.
+     * @param val The destination to extract the item into.
      * @returns   The stream reference.
      */
     template <class T>
@@ -125,11 +125,10 @@ namespace cfg::reader
     }
 
     /**
-     * Pops a word or item from the section, if the end of section is found sets the stream to
-     * `EOF`.
+     * Pops an item from the section.
      *
      * @param mesh_data The stream being read.
-     * @param val       The destination the word is inserted into.
+     * @param val       The destination the value is inserted into.
      * @returns         The stream.
      */
     template <class T>
@@ -140,6 +139,15 @@ namespace cfg::reader
 
       return mesh_data;
     }
+
+    /**
+     * Pops a string (or word) from the section, if the end of section is found sets the stream to
+     * `EOF`.
+     *
+     * @param mesh_data The stream being read.
+     * @param val       The string the word is inserted into.
+     * @returns         The stream.
+     */
     [[nodiscard]] std::istream& pop_word(std::istream& mesh_data, std::string& val) const
     {
       ffwd(mesh_data);

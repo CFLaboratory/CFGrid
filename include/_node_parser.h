@@ -20,10 +20,10 @@ namespace cfg::parser
    */
   struct NodeHeader
   {
-    size_t n_nodes;   // The number of nodes in the mesh
-    size_t n_blocks;  // The number of node blocks in the mesh
-    size_t min_tag;   // The minimum node index
-    size_t max_tag;   // The maximum node index
+    size_t n_nodes;   ///< The number of nodes in the mesh
+    size_t n_blocks;  ///< The number of node blocks in the mesh
+    size_t min_tag;   ///< The minimum node index
+    size_t max_tag;   ///< The maximum node index
   };
 
   /**
@@ -59,7 +59,7 @@ namespace cfg::parser
    * Performs validation of the node data that was read, raising an error if this fails.
    *
    * @param nodes       The vector of nodes.
-   * @prarm node_header The global description of the nodes in the mesh that is used to test the data.
+   * @param node_header The global description of the nodes in the mesh that is used to test the data.
    * @param parallel    The parallel configuration object.
    */
   void validate_nodes(const std::vector<Node<3>>& nodes,

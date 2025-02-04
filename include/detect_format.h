@@ -26,6 +26,11 @@ namespace cfg::reader
   class unknown_format : public std::runtime_error
   {
    public:
+    /**
+     * Constructor for the `unknonw_format` error.
+     *
+     * @param msg The message to be returned as part of the error.
+     */
     unknown_format(const std::string& msg) : std::runtime_error{msg} {};
   };
 
@@ -35,6 +40,12 @@ namespace cfg::reader
   class GmshDetector
   {
    public:
+    /**
+     * Given a filepath, determines whether the file it points to is a GMSH file.
+     *
+     * @param meshfile The filepath which may point to a GMSH file.
+     * @returns Whether the file is a GMSH file (`true`) or not (`false`).
+     */
     [[nodiscard]] static bool is_gmsh_file(const std::filesystem::path& meshfile)
     {
       std::ifstream istream(meshfile);
@@ -44,6 +55,13 @@ namespace cfg::reader
       return is_gmsh_file(first_line);
     }
 
+    /**
+     * Given the first line in the file, test whether it is a GMSH file or not. GMSH files are
+     * expected to begin with "$MeshFormat".
+     *
+     * @param first_line The first line of the file.
+     * @returns Whether the file is a GMSH file (`true`) or not (`false`).
+     */
     [[nodiscard]] static bool is_gmsh_file(const std::string& first_line)
     {
       // This could be improved by stripping spaces, but should do for now.
