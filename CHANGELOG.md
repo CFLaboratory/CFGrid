@@ -9,18 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added parallel (MPI-based) node reading
-- Add `CONTRIBUTING.md` guide
-- Implement a basic `SectionReader` to read GMSH mesh sections
-- Implement a basic `Parser` class that can parse GMSH headers
-- Add clang-format and clang-tidy configurations to support consistent code style
-- Implement a basic `FormatDetector` class that can determine the mesh format it is given
-- `Catch2`-based tests
-- `CMake`-based build system
-- Rename `CFMesh` -> `CFGrid` to avoid confusion with existing mesh generator
-- Initial style guide
-- Description of `CFMesh` to `README.md`
-- Doxygen-based documentation system
+- Implemented parallel (MPI-only) node reading for GMSH meshes
+- Added a `CONTRIBUTING.md` guide
+- Added clang-format and clang-tidy configurations to support consistent code style
+- Added `Catch2`-based testing
+- Added a `CMake`-based build system
+- Renamed project from `CFMesh` -> `CFGrid` to avoid confusion with an existing mesh generator
+- Added a style guide
+- Added a Doxygen-based documentation system
 - Licensed under Apache 2.0
 
 ### Changed
