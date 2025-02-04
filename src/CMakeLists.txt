@@ -13,6 +13,7 @@ target_link_libraries(objnode_parser objreader)
 
 add_library(libcfg $<TARGET_OBJECTS:objreader> $<TARGET_OBJECTS:objnode_parser>)
 target_include_directories(libcfg PUBLIC ${CMAKE_SOURCE_DIR}/include)
+set_target_properties(libcfg PROPERTIES OUTPUT_NAME "cfg") # Prevents building "liblibcfg.x"
 
 add_executable(cfgrid main.cpp)
 target_link_libraries(cfgrid libcfg)
