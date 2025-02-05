@@ -7,7 +7,7 @@
 add_library(objreader OBJECT reader.cpp)
 target_include_directories(objreader PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-add_library(objnode_parser OBJECT node_parser.cpp _node_parser.cpp)
+add_library(objnode_parser OBJECT _node_parser.cpp node_parser.cpp)
 target_include_directories(objnode_parser PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(objnode_parser objreader)
 

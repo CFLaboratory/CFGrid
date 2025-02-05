@@ -20,7 +20,7 @@ TEST_CASE("Parse Node Header", "[internals]")
 
   const cfg::reader::SectionReader node_reader("Nodes", header);
 
-  const auto node_header = cfg::parser::parse_node_header(node_reader, header, mode);
+  const auto node_header = cfg::parser::HeaderParser::parse(node_reader, header, mode);
 
   REQUIRE(node_header.n_blocks == 1);
   REQUIRE(node_header.n_nodes == 2);
@@ -58,16 +58,17 @@ TEST_CASE("Parse Node Blocks", "[internals]")
     parallel.rank = 0;
     return parallel;
   }();
-  const auto nodes = cfg::parser::parse_node_blocks(node_reader, node_header, node_blocks, mode, parallel);
+  const cfg::parser::NodeEnvironment environment{parallel};
+  const auto nodes = cfg::parser::DataParser::parse(node_reader, node_blocks, mode, node_header, environment);
 
   REQUIRE(nodes.size() == n_nodes);
 
-  REQUIRE(nodes[0].idx == 1);
-  REQUIRE(nodes[1].idx == 9);
-  REQUIRE(nodes[2].idx == 10);
-  REQUIRE(nodes[3].idx == 11);
-  REQUIRE(nodes[4].idx == 12);
-  REQUIRE(nodes[5].idx == 13);
+  REQUIRE(nodes[0].natural_idx == 1);
+  REQUIRE(nodes[1].natural_idx == 9);
+  REQUIRE(nodes[2].natural_idx == 10);
+  REQUIRE(nodes[3].natural_idx == 11);
+  REQUIRE(nodes[4].natural_idx == 12);
+  REQUIRE(nodes[5].natural_idx == 13);
 
   REQUIRE(nodes[0].x == std::array<double, 3>{0, 0, 1});
   REQUIRE(nodes[1].x == std::array<double, 3>{0, 0, 0.1});
@@ -91,7 +92,8 @@ TEST_CASE("Validate Nodes (continuous)", "[internals]")
 
     for (auto& n : nodes)
     {
-      n.idx = idx;
+      n.natural_idx = idx;
+      n.global_idx = idx;
       n.x   = x;
       idx++;
     }
@@ -151,7 +153,8 @@ TEST_CASE("Validate Nodes (discontinuous)", "[internals]")
 
     for (auto& n : nodes)
     {
-      n.idx = idx;
+      n.natural_idx = idx;
+      n.global_idx = idx;
       n.x   = x;
       idx += 2;
     }

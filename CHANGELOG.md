@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 ### Changed
+
+- Refactored the `read_nodes` function in terms of a generic `read_X` function
+- Replaced `parse_node_header` with `HeaderParser::parse`
+- Replaced `parse_node_blocks` with `DataParser::parse`
+
 ### Deprecated
 ### Removed
 ### Fixed
