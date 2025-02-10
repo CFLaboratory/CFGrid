@@ -8,7 +8,6 @@
 
 #include <array>
 #include <cstddef>
-#include <functional>
 #include <istream>
 
 #include <section_reader.h>

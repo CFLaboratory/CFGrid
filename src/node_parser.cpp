@@ -24,7 +24,6 @@ namespace cfg::parser
     node_reader(mesh_stream) >> line;
     if (line != "$EndNodes")
     {
-      std::cout << line << std::endl;
       throw std::runtime_error("The Nodes section was read incorrectly");
     }
 
