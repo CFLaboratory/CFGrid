@@ -82,7 +82,7 @@ namespace cfg::parser
    * @param mode        Flag indicating whether the file was opened in ASCII or binary mode.
    * @param parallel    The parallel environment.
    */
-  void read_nodes(std::ifstream& mesh_stream, const Mode mode, const cfg::utils::Parallel& parallel);
+  [[nodiscard]] std::vector<Node<3>> read_nodes(std::ifstream& mesh_stream, const Mode mode, const cfg::utils::Parallel& parallel);
 }  // namespace cfg::parser
 
 #endif  // __CFG_NODE_PARSER_H_
