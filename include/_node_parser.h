@@ -8,10 +8,11 @@
 #ifndef __CFG__NODE_PARSER_H_
 #define __CFG__NODE_PARSER_H_
 
-#include <node_parser.h>
 #include <fstream>
+#include <functional>
 #include <vector>
 
+#include <node_parser.h>
 #include <utils.h>
 
 namespace cfg::parser
