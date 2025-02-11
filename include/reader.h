@@ -7,9 +7,9 @@
 #define __CFG_READER_H_
 
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <utility>
-#include <fstream>
 
 #include <node_parser.h>
 
@@ -64,7 +64,7 @@ namespace cfg::reader
    */
   class GmshReader
   {
-  public:
+   public:
     /**
      * Constructs a `GmshReader` object.
      *
@@ -74,19 +74,9 @@ namespace cfg::reader
     GmshReader(const std::filesystem::path& mesh_file, const cfg::utils::Parallel& parallel)
     {
       const GmshHeader header = read_header(mesh_file);
-
-      if (header.binary)
-      {
-	// Binary
-	std::ifstream mesh_stream{mesh_file, std::ios::in | std::ios::binary};
-	cfg::parser::read_nodes(mesh_stream, cfg::parser::Mode::BINARY, parallel);
-      }
-      else
-      {
-	// ASCII
-	std::ifstream mesh_stream{mesh_file};
-	cfg::parser::read_nodes(mesh_stream, cfg::parser::Mode::ASCII, parallel);
-      }
+      const auto [stream_mode, reader_mode] = open_mode(header);
+      std::ifstream mesh_stream{mesh_file, stream_mode};
+      cfg::parser::read_nodes(mesh_stream, reader_mode, parallel);
     }
 
    private:
@@ -97,6 +87,15 @@ namespace cfg::reader
      * @returns        The GMSH header data structure.
      */
     [[nodiscard]] static GmshHeader read_header(const std::filesystem::path& meshfile);
+
+    [[nodiscard]] static std::tuple<std::ios::openmode, cfg::parser::Mode> open_mode(const GmshHeader& header)
+    {
+      if (header.binary)
+      {
+	return {std::ios::in | std::ios::binary, cfg::parser::Mode::BINARY};
+      }
+      return {std::ios::in, cfg::parser::Mode::ASCII};
+    }
   };
 }  // namespace cfg::reader
 
