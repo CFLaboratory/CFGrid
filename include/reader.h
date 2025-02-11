@@ -76,7 +76,7 @@ namespace cfg::reader
       const GmshHeader header = read_header(mesh_file);
       const auto [stream_mode, reader_mode] = open_mode(header);
       std::ifstream mesh_stream{mesh_file, stream_mode};
-      cfg::parser::read_nodes(mesh_stream, reader_mode, parallel);
+      const auto nodes = cfg::parser::read_nodes(mesh_stream, reader_mode, parallel);
     }
 
    private:
