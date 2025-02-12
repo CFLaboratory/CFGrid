@@ -55,10 +55,10 @@ namespace cfg::parser
       {
         NodeHeader node_header{};
 
-        node_header.n_blocks = read_one<size_t>(node_reader, mesh_stream, mode);
-        node_header.n_nodes  = read_one<size_t>(node_reader, mesh_stream, mode);
-        node_header.min_tag  = read_one<size_t>(node_reader, mesh_stream, mode);
-        node_header.max_tag  = read_one<size_t>(node_reader, mesh_stream, mode);
+        node_header.n_blocks = reader::read_one<size_t>(node_reader, mesh_stream, mode);
+        node_header.n_nodes  = reader::read_one<size_t>(node_reader, mesh_stream, mode);
+        node_header.min_tag  = reader::read_one<size_t>(node_reader, mesh_stream, mode);
+        node_header.max_tag  = reader::read_one<size_t>(node_reader, mesh_stream, mode);
 
         return node_header;
       }();
@@ -144,10 +144,10 @@ namespace cfg::parser
         std::istream& mesh_stream,
         const reader::Mode mode) noexcept
     {
-      const auto block_dim   = read_one<int>(node_reader, mesh_stream, mode);
-      const auto block_tag   = read_one<int>(node_reader, mesh_stream, mode);
-      const auto block_param = read_one<int>(node_reader, mesh_stream, mode);
-      const auto block_nodes = read_one<size_t>(node_reader, mesh_stream, mode);
+      const auto block_dim   = reader::read_one<int>(node_reader, mesh_stream, mode);
+      const auto block_tag   = reader::read_one<int>(node_reader, mesh_stream, mode);
+      const auto block_param = reader::read_one<int>(node_reader, mesh_stream, mode);
+      const auto block_nodes = reader::read_one<size_t>(node_reader, mesh_stream, mode);
 
       return {block_dim, block_tag, bool{static_cast<bool>(block_param)}, block_nodes};
     }
@@ -170,7 +170,7 @@ namespace cfg::parser
 
       for (size_t node = 0; node < block_nodes; node++)
       {
-        indices[node] = read_one<size_t>(node_reader, mesh_stream, mode);
+        indices[node] = reader::read_one<size_t>(node_reader, mesh_stream, mode);
       }
 
       return indices;
@@ -195,7 +195,7 @@ namespace cfg::parser
 
       auto pop_component = [&node_reader, &mesh_stream, mode]() -> double
       {
-        return read_one<double>(node_reader, mesh_stream, mode);
+        return reader::read_one<double>(node_reader, mesh_stream, mode);
       };
 
       for (size_t node = 0; node < block_nodes; node++)
