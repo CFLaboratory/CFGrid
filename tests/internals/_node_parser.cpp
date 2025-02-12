@@ -94,8 +94,8 @@ TEST_CASE("Validate Nodes (continuous)", "[internals]")
     for (auto& n : nodes)
     {
       n.natural_idx = idx;
-      n.global_idx = idx;
-      n.x   = x;
+      n.global_idx  = idx;
+      n.x           = x;
       idx++;
     }
 
@@ -155,8 +155,8 @@ TEST_CASE("Validate Nodes (discontinuous)", "[internals]")
     for (auto& n : nodes)
     {
       n.natural_idx = idx;
-      n.global_idx = idx;
-      n.x   = x;
+      n.global_idx  = idx;
+      n.x           = x;
       idx += 2;
     }
 
