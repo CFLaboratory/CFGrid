@@ -10,6 +10,7 @@
 
 #include <reader.h>
 #include <section_reader.h>
+#include <topo_parser.h>
 
 namespace cfg::parser
 {
@@ -50,6 +51,25 @@ namespace cfg::parser
 
       return topo_header;
     }
+  };
+
+  class DataParser
+  {
+   public:
+    [[nodiscard]] static Topo parse(const reader::SectionReader& topo_reader,
+                                    std::istream& mesh_stream,
+                                    const reader::Mode mode,
+                                    const TopoHeader& hdr,
+                                    const std::vector<Node<3>>& nodes)
+    {
+      return {};
+    }
+  };
+
+  class Validator
+  {
+   public:
+    void validate(const Topo& topo, const TopoHeader& hdr) const {};
   };
 
 }  // namespace cfg::parser

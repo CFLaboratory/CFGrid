@@ -17,25 +17,6 @@ namespace cfg::parser
     return os << "Topo:\n";
   }
 
-  class DataParser
-  {
-   public:
-    Topo parse(const reader::SectionReader& topo_reader,
-               std::ifstream& mesh_stream,
-               const reader::Mode mode,
-               const TopoHeader& hdr,
-               const std::vector<Node<3>>& nodes) const
-    {
-      return {};
-    }
-  };
-
-  class Validator
-  {
-   public:
-    void validate(const Topo& topo, const TopoHeader& hdr) const {};
-  };
-
   std::function<Topo(const cfg::reader::SectionReader&, std::ifstream&, const reader::Mode)> make_topo_reader(
       const std::vector<Node<3>>& nodes)
   {
