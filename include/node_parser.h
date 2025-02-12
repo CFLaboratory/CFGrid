@@ -8,7 +8,6 @@
 
 #include <array>
 #include <cstddef>
-#include <istream>
 
 #include <reader.h>
 #include <section_reader.h>
@@ -16,25 +15,6 @@
 
 namespace cfg::parser
 {
-  /**
-   * Reads a single item from the reader, according to the mode.
-   */
-  template <class C>
-  [[nodiscard]] C read_one(const reader::SectionReader& node_reader, std::istream& mesh_stream, const reader::Mode mode)
-  {
-    C val;
-    if (mode == reader::Mode::ASCII)
-    {
-      node_reader(mesh_stream) >> val;
-    }
-    else
-    {
-      const size_t nchar = sizeof(C) / sizeof(char);
-      mesh_stream.read((char*)&val, nchar);
-    }
-    return val;
-  }
-
   /**
    * A mesh node of arbitrary dimension `d`. This stores the node's index and coordinates.
    */
