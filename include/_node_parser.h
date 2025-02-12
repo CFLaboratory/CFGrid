@@ -45,9 +45,9 @@ namespace cfg::parser
      */
     [[nodiscard]] static auto parse(const cfg::reader::SectionReader& node_reader,
                                     std::istream& mesh_stream,
-                                    const Mode mode)
+                                    const reader::Mode mode)
     {
-      if (mode == Mode::BINARY)
+      if (mode == reader::Mode::BINARY)
       {
         mesh_stream.ignore(1);  // Skip spare char
       }
@@ -91,9 +91,9 @@ namespace cfg::parser
      * @param environment Contains the calling environment, in particular passes the Parallel field
      * @returns The node vector.
      */
-    [[nodiscard]] static auto parse(const cfg::reader::SectionReader& node_reader,
+    [[nodiscard]] static auto parse(const reader::SectionReader& node_reader,
                                     std::istream& mesh_stream,
-                                    const Mode mode,
+                                    const reader::Mode mode,
                                     const NodeHeader& node_header,
                                     const NodeEnvironment& environment)
     {
@@ -140,9 +140,9 @@ namespace cfg::parser
      *          parametric and the number of nodes in the block.
      */
     [[nodiscard]] static std::tuple<int, int, bool, size_t> parse_node_block_header(
-        const cfg::reader::SectionReader& node_reader,
+        const reader::SectionReader& node_reader,
         std::istream& mesh_stream,
-        const Mode mode) noexcept
+        const reader::Mode mode) noexcept
     {
       const auto block_dim   = read_one<int>(node_reader, mesh_stream, mode);
       const auto block_tag   = read_one<int>(node_reader, mesh_stream, mode);
@@ -164,7 +164,7 @@ namespace cfg::parser
     [[nodiscard]] static std::vector<size_t> parse_node_idx(const cfg::reader::SectionReader& node_reader,
                                                             const size_t block_nodes,
                                                             std::istream& mesh_stream,
-                                                            const Mode mode) noexcept
+                                                            const reader::Mode mode) noexcept
     {
       std::vector<size_t> indices(block_nodes);
 
@@ -189,7 +189,7 @@ namespace cfg::parser
         const cfg::reader::SectionReader& node_reader,
         const size_t block_nodes,
         std::istream& mesh_stream,
-        const Mode mode) noexcept
+        const reader::Mode mode) noexcept
     {
       std::vector<std::array<double, 3>> coords(block_nodes);
 
@@ -247,7 +247,7 @@ namespace cfg::parser
    * @param parallel The parallel environment.
    * @returns A function to read nodes from a GMSH file.
    */
-  std::function<std::vector<Node<3>>(const cfg::reader::SectionReader&, std::ifstream&, const Mode)> make_node_reader(
+  std::function<std::vector<Node<3>>(const cfg::reader::SectionReader&, std::ifstream&, const reader::Mode)> make_node_reader(
       const cfg::utils::Parallel& parallel);
 }  // namespace cfg::parser
 

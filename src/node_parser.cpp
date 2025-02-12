@@ -10,7 +10,7 @@
 
 namespace cfg::parser
 {
-  [[nodiscard]] std::vector<Node<3>> read_nodes(std::ifstream& mesh_stream, const Mode mode, const cfg::utils::Parallel& parallel)
+  [[nodiscard]] std::vector<Node<3>> read_nodes(std::ifstream& mesh_stream, const reader::Mode mode, const cfg::utils::Parallel& parallel)
   {
     std::cout << "+ Reading nodes" << std::endl;
     const cfg::reader::SectionReader node_reader("Nodes", mesh_stream);
