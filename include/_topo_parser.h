@@ -63,6 +63,7 @@ namespace cfg::parser
                                     const TopoHeader& hdr,
                                     const std::vector<Node<3>>& nodes)
     {
+<<<<<<< HEAD
       Topo topo{};
 
       for (size_t block = 0; block < hdr.n_blocks; block++)
@@ -115,6 +116,8 @@ namespace cfg::parser
                                                         std::istream& mesh_stream,
                                                         const reader::Mode mode)
     {
+=======
+>>>>>>> e038942 (squash(WIP): Sketching the access to the topology)
       return {};
     }
   };
