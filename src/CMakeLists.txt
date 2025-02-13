@@ -15,7 +15,9 @@ find_package(kaHIP REQUIRED)
 add_library(objparser OBJECT
   _node_parser.cpp node_parser.cpp
 )
-target_include_directories(objparser PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+add_library(objreader OBJECT reader.cpp)
+target_include_directories(objreader PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 add_library(objmesh OBJECT
   gmsh.cpp
