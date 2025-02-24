@@ -108,7 +108,7 @@ namespace cfg::parser
     }
   }
 
-  std::function<std::vector<Node<3>>(const cfg::reader::SectionReader&, std::ifstream&, const Mode)> make_node_reader(
+  std::function<std::vector<Node<3>>(const reader::SectionReader&, std::ifstream&, const reader::Mode)> make_node_reader(
       const cfg::utils::Parallel& parallel)
   {
     class Validator

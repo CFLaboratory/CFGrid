@@ -1,5 +1,5 @@
 /**
- * reader.cpp
+ * gmsh.cpp
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,9 +7,9 @@
 #include <fstream>
 #include <sstream>
 
-#include <reader.h>
+#include <gmsh.h>
 
-namespace cfg::reader
+namespace cfg::mesh
 {
   [[nodiscard]] GmshHeader GmshHeaderParser::parse_header(const std::string& line) const
   {

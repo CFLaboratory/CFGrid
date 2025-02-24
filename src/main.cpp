@@ -12,6 +12,7 @@
 #include <mpi.h>
 
 #include <detect_format.h>
+#include <gmsh.h>
 #include <node_parser.h>
 #include <reader.h>
 #include <section_reader.h>
@@ -50,7 +51,7 @@ void read_mesh(const std::filesystem::path& mesh_file, const cfg::utils::Paralle
   std::cout << "Reading mesh file: " << mesh_file << std::endl;
   if (cfg::reader::FormatDetector::get_format(mesh_file) == cfg::reader::MeshFormat::GMSH)
   {
-    cfg::reader::GmshReader reader(mesh_file, parallel);
+    cfg::mesh::GmshReader reader(mesh_file, parallel);
   }
   else
   {

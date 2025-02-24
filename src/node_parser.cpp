@@ -10,7 +10,7 @@
 
 namespace cfg::parser
 {
-  void read_nodes(std::ifstream& mesh_stream, const Mode mode, const cfg::utils::Parallel& parallel)
+  [[nodiscard]] std::vector<Node<3>> read_nodes(std::ifstream& mesh_stream, const reader::Mode mode, const cfg::utils::Parallel& parallel)
   {
     std::cout << "+ Reading nodes" << std::endl;
     const cfg::reader::SectionReader node_reader("Nodes", mesh_stream);
@@ -26,8 +26,8 @@ namespace cfg::parser
     {
       throw std::runtime_error("The Nodes section was read incorrectly");
     }
-
-    // Report how many nodes we read
     std::cout << "++ Rank " << parallel.rank << " read " << nodes.size() << " nodes" << std::endl;
+
+    return nodes;
   }
 }  // namespace cfg::parser
