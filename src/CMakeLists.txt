@@ -10,18 +10,7 @@ add_library(objparser OBJECT
 )
 target_include_directories(objparser PUBLIC ${CMAKE_SOURCE_DIR}/include)
 # Integration of KaHIP/parhip
-Include(FetchContent)
-
-FetchContent_Declare(
-  KaHIP
-  GIT_REPOSITORY https://github.com/KaHIP/KaHIP.git
-  GIT_TAG        v3.18
-)
-FetchContent_MakeAvailable(KaHIP)
-
-# remove the -Wpedantic flag as parhip doesn't handle it
-target_compile_options(parhip PRIVATE "-Wno-pedantic")
-
+find_package(kaHIP REQUIRED)
 
 add_library(objreader OBJECT reader.cpp)
 target_include_directories(objreader PUBLIC ${CMAKE_SOURCE_DIR}/include)
@@ -40,6 +29,8 @@ target_include_directories(libcfg PUBLIC ${CMAKE_SOURCE_DIR}/include)
 set_target_properties(libcfg PROPERTIES OUTPUT_NAME "cfg") # Prevents building "liblibcfg.x"
 
 add_executable(cfgrid main.cpp)
+# target_link_libraries(cfgrid ${kaHIP_LIBRARY})
+# target_include_directories(cfgrid PUBLIC ${kaHIP_INCLUDE_DIR})
 target_link_libraries(cfgrid libcfg)
 
 find_package(MPI REQUIRED)
