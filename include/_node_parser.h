@@ -14,6 +14,7 @@
 
 #include <node_parser.h>
 #include <utils.h>
+#include <partition.h>
 
 namespace cfg::parser
 {
@@ -99,7 +100,7 @@ namespace cfg::parser
     {
       std::vector<Node<3>> nodes;
 
-      const utils::NaivePartition partition{environment.parallel, node_header.n_nodes};
+      const partition::NaivePartition partition{environment.parallel, node_header.n_nodes};
 
       // Read nodes from each block
       size_t ctr = 0;
