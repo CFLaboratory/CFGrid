@@ -4,21 +4,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+find_package(kaHIP REQUIRED)
+
 add_library(objparser OBJECT
   _node_parser.cpp node_parser.cpp
   topo_parser.cpp
 )
 target_include_directories(objparser PUBLIC ${CMAKE_SOURCE_DIR}/include)
-# Integration of KaHIP/parhip
-find_package(kaHIP REQUIRED)
-
-add_library(objparser OBJECT
-  _node_parser.cpp node_parser.cpp
-)
-target_include_directories(objparser PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(objparser MPI::MPI_CXX)
-target_link_libraries(objparser ${kaHIP_LIBRARY})
-target_include_directories(objparser PUBLIC ${kaHIP_INCLUDE_DIR})
 
 add_library(objmesh OBJECT
   gmsh.cpp
@@ -34,6 +26,8 @@ target_include_directories(libcfg PUBLIC ${CMAKE_SOURCE_DIR}/include)
 set_target_properties(libcfg PROPERTIES OUTPUT_NAME "cfg") # Prevents building "liblibcfg.x"
 
 add_executable(cfgrid main.cpp)
+# target_link_libraries(cfgrid ${kaHIP_LIBRARY})
+# target_include_directories(cfgrid PUBLIC ${kaHIP_INCLUDE_DIR})
 target_link_libraries(cfgrid libcfg)
 
 find_package(MPI REQUIRED)
