@@ -21,7 +21,7 @@ namespace cfg::parser
    public:
     NestedVector() = default;
     NestedVector(std::vector<size_t> ptr, std::vector<T> val) : ptr(std::move(ptr)), val(val) {}
-    
+
     [[nodiscard]] size_t size() const
     {
       if (ptr.empty())
@@ -33,7 +33,7 @@ namespace cfg::parser
 
     [[nodiscard]] auto begin() const
     {
-      return iterator(0, ptr, val);
+      return iterator(0, *this);
     }
 
     [[nodiscard]] auto end() const
@@ -43,20 +43,23 @@ namespace cfg::parser
         return begin();
       }
 
-      return iterator(size() + 1, ptr, val);
+      return iterator(size() + 1, *this);
     }
 
    private:
     std::vector<size_t> ptr{};  // The row start vector
-    std::vector<T> val{};  // The row values vector
+    std::vector<T> val{};       // The row values vector
 
     class iterator
     {
      public:
-      iterator(const size_t idx, const std::vector<T>& ptr, const std::vector<T>& val)
-          : offset(ptr.begin() + idx), last(ptr.end() - 1), _begin(val.begin() + *offset), _end(val.begin() + *(offset + 1))
+      iterator(const size_t idx, const NestedVector<T>& vec)
+          : offset(vec.ptr.begin() + idx),
+            last(vec.ptr.end() - 1),
+            _begin(vec.val.begin() + *offset),
+            _end(vec.val.begin() + *(offset + 1))
       {
-        if (ptr.empty())
+        if (vec.ptr.empty())
         {
           _end = _begin;
         }
@@ -79,18 +82,18 @@ namespace cfg::parser
 
       iterator& operator++()
       {
-	// Move beginning to end
-        _begin =_end;
-	
-	// Advance offset if not at last entry, storing previous location
-	const auto tmp = offset;
-	if (offset != last)
-	{
-	  offset++;
-	}
+        // Move beginning to end
+        _begin = _end;
 
-	// Advance end by step between offset values
-	const auto delta = *offset - *tmp;
+        // Advance offset if not at last entry, storing previous location
+        const auto tmp = offset;
+        if (offset != last)
+        {
+          offset++;
+        }
+
+        // Advance end by step between offset values
+        const auto delta = *offset - *tmp;
         _end += delta;
 
         return *this;
@@ -102,10 +105,10 @@ namespace cfg::parser
       }
 
      private:
-      typename std::vector<T>::const_iterator offset;
-      typename std::vector<T>::const_iterator last;
-      typename std::vector<T>::const_iterator _begin;
-      typename std::vector<T>::const_iterator _end;
+      typename std::vector<size_t>::const_iterator offset;  //< The current position in the NestedVector
+      typename std::vector<size_t>::const_iterator last;    //< The end of the NestedVector
+      typename std::vector<T>::const_iterator _begin;       //< The beginning of the current segment
+      typename std::vector<T>::const_iterator _end;         //< The end of the current segment
     };
   };
 
