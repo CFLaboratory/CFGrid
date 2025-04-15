@@ -10,23 +10,106 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstddef>
 #include <sstream>
 
 #include <node_parser.h>
 #include <section_reader.h>
 
-TEST_CASE("NestedVector", "[internals]")
+TEST_CASE("Empty NestedVector", "[internals]")
 {
-  const std::vector<size_t> ptr{0, 3, 7, 9};
-  const std::vector<size_t> val{0, 1, 2, 3, 4, 5, 6, 7, 8};
+  const std::vector<size_t> ptr{};
+  const std::vector<size_t> val{};
   const cfg::parser::NestedVector<size_t> csr{ptr, val};
 
-  auto ctr = 0;
-  for (auto row : csr)
+  SECTION("Check row count")
   {
-    const auto entry = *(row.begin());
-    std::cout << entry << std::endl;
-    REQUIRE(entry == val[ptr[ctr++]]);
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      // Silence unused variable warning
+      auto a = *row.begin();
+      a = a + 0;
+
+      ctr++;
+    }
+    REQUIRE(ctr == 0);
+  }
+
+  SECTION("Check steps")
+  {
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      for (auto entry : row)
+      {
+	auto a = entry;
+	a = a + 0;
+
+	ctr++;
+      }
+    }
+    REQUIRE(ctr == 0);
+  }
+}
+
+TEST_CASE("NestedVector", "[internals]")
+{
+  const std::vector<size_t> ptr{0, 3, 7, 10};
+  const std::vector<size_t> val{1, 2, 3, 4, 5, 6, 7, 8, 9};
+  const cfg::parser::NestedVector<size_t> csr{ptr, val};
+
+  SECTION("Check row count")
+  {
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      // Silence unused variable warning
+      auto a = *row.begin();
+      a = a + 0;
+
+      ctr++;
+    }
+    REQUIRE(ctr == 3);
+  }
+  
+  SECTION("Check strides")
+  {
+    SECTION("Check begins")
+    {
+      auto ctr = 0;
+      for (auto row : csr)
+      {
+        REQUIRE(*row.begin() == val[ptr[ctr++]]);
+      }
+    }
+
+    SECTION("Check ends")
+    {
+      auto ctr = 0;
+      for (auto row : csr)
+      {
+	if (ctr < 2)
+	{
+	  REQUIRE(*row.end() == val[ptr[++ctr]]);
+	}
+      }
+    }
+  }
+
+  SECTION("Check steps")
+  {
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      auto ctr2 = 0;
+      for (const auto entry : row)
+      {
+        REQUIRE(entry == val[ptr[ctr] + ctr2]);
+        ctr2++;
+      }
+      ctr++;
+    }
   }
 }
 

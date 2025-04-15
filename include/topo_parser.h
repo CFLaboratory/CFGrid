@@ -7,10 +7,12 @@
 #define __CFG_TOPO_PARSER_H_
 
 #include <fstream>
-#include <utility>
+#include <stdexcept>
 
 #include <node_parser.h>
 #include <utils.h>
+
+#include <iostream>
 
 namespace cfg::parser
 {
@@ -20,20 +22,43 @@ namespace cfg::parser
   {
    public:
     NestedVector() = default;
-    NestedVector(std::vector<size_t> ptr, std::vector<T> val) : ptr(std::move(ptr)), val(val) {}
+    NestedVector(const std::vector<size_t>& ptr, std::vector<T> val) : _val(val)
+    {
+      if (!ptr.empty())
+      {
+        _size = ptr.size() - 1;
+	if (ptr.back() > val.size() + 1)
+	{
+	  throw std::runtime_error("The last entry of ptr must be <= val.size() + 1");
+	}
+
+	size_t prev = 0;
+        for (const auto o : ptr)
+        {
+	  if (o < prev)
+	  {
+	    throw std::runtime_error("The offsets ptr must be increasing");
+	  }
+	  prev = o;
+          _ptr.push_back(_val.begin() + o);
+        }
+      }
+      else
+      {
+        _ptr.push_back(_val.begin());
+        _ptr.push_back(_val.end());
+        _size = 0;
+      }
+    }
 
     [[nodiscard]] size_t size() const
     {
-      if (ptr.empty())
-      {
-        return 0;
-      }
-      return ptr.size() - 1;  // ptr contains n+1 offsets
+      return _size;
     }
 
     [[nodiscard]] auto begin() const
     {
-      return iterator(0, *this);
+      return Iterator(_ptr.begin(), *this);
     }
 
     [[nodiscard]] auto end() const
@@ -43,72 +68,68 @@ namespace cfg::parser
         return begin();
       }
 
-      return iterator(size() + 1, *this);
+      return Iterator(_ptr.end() - 1, *this);
     }
 
    private:
-    std::vector<size_t> ptr{};  // The row start vector
-    std::vector<T> val{};       // The row values vector
+    std::vector<typename std::vector<T>::const_iterator> _ptr{};  // The row start vector
+    std::vector<T> _val{};                                        // The row values vector
+    size_t _size{};
 
-    class iterator
+    class Iterator
     {
      public:
-      iterator(const size_t idx, const NestedVector<T>& vec)
-          : offset(vec.ptr.begin() + idx),
-            last(vec.ptr.end() - 1),
-            _begin(vec.val.begin() + *offset),
-            _end(vec.val.begin() + *(offset + 1))
+      Iterator(typename std::vector<typename std::vector<T>::const_iterator>::const_iterator itstart,
+               const NestedVector<T>& vec)
+          : curr(itstart), next(itstart), last(vec._ptr.end() - 1)
       {
-        if (vec.ptr.empty())
+        if (next != last)
         {
-          _end = _begin;
+          next++;
         }
       }
 
       [[nodiscard]] auto begin() const
       {
-        return _begin;
+        return *curr;
       }
 
       [[nodiscard]] auto end() const
       {
-        return _end;
+        return *next;
       }
 
-      bool operator!=(const iterator& a)
+      bool operator!=(const Iterator& other)
       {
-        return this->offset != a.offset;
+        return this->curr != other.curr;
       }
 
-      iterator& operator++()
+      Iterator& operator++()
       {
-        // Move beginning to end
-        _begin = _end;
+        // Advance starting iterators
+        curr = next;
 
-        // Advance offset if not at last entry, storing previous location
-        const auto tmp = offset;
-        if (offset != last)
+        // Advance ending iterators if we haven't hit the end
+        if (next != last)
         {
-          offset++;
+          next++;
         }
-
-        // Advance end by step between offset values
-        const auto delta = *offset - *tmp;
-        _end += delta;
 
         return *this;
       }
 
-      iterator& operator*()
+      Iterator& operator*()
       {
         return *this;
       }
 
      private:
-      typename std::vector<size_t>::const_iterator offset;  //< The current position in the NestedVector
-      typename std::vector<size_t>::const_iterator last;    //< The end of the NestedVector
-      typename std::vector<T>::const_iterator _begin;       //< The beginning of the current segment
-      typename std::vector<T>::const_iterator _end;         //< The end of the current segment
+      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
+          curr;  //< The current position in the NestedVector
+      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
+          next;  //< The next position in the NestedVector
+      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
+          last;  //< The end of the NestedVector
     };
   };
 

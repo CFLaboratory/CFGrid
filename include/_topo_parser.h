@@ -71,7 +71,7 @@ namespace cfg::parser
             parse_topo_block_header(topo_reader, mesh_stream, mode);
         const auto elt = parse_elt(topo_reader, block_elt, mesh_stream, mode);
 
-        for (const auto e : elt)
+        for (const auto& e : elt)
         {
 	  std::cout << "hihi" << std::endl;
           const auto element_is_local = [e](const Node<3>& node) -> bool
