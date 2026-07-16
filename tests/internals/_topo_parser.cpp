@@ -29,9 +29,26 @@ TEST_CASE("Empty NestedVector", "[internals]")
     {
       // Silence unused variable warning
       auto a = *row.begin();
-      a = a + 0;
+      a      = a + 0;
 
       ctr++;
+    }
+    REQUIRE(ctr == 0);
+  }
+
+  SECTION("Check element count")
+  {
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      for (auto e : row)
+      {
+	// Silence unused variable warning
+        auto v = e;
+        v = v + 0;
+        
+        ctr++;
+      }
     }
     REQUIRE(ctr == 0);
   }
@@ -43,10 +60,10 @@ TEST_CASE("Empty NestedVector", "[internals]")
     {
       for (auto entry : row)
       {
-	auto a = entry;
-	a = a + 0;
+        auto a = entry;
+        a      = a + 0;
 
-	ctr++;
+        ctr++;
       }
     }
     REQUIRE(ctr == 0);
@@ -55,9 +72,11 @@ TEST_CASE("Empty NestedVector", "[internals]")
 
 TEST_CASE("NestedVector", "[internals]")
 {
-  const std::vector<size_t> ptr{0, 3, 7, 10};
+  const std::vector<size_t> ptr{0, 3, 7, 9};
   const std::vector<size_t> val{1, 2, 3, 4, 5, 6, 7, 8, 9};
   const cfg::parser::NestedVector<size_t> csr{ptr, val};
+  const auto nrows = ptr.size() - 1;
+  const auto nel = val.size();
 
   SECTION("Check row count")
   {
@@ -66,33 +85,69 @@ TEST_CASE("NestedVector", "[internals]")
     {
       // Silence unused variable warning
       auto a = *row.begin();
-      a = a + 0;
+      a      = a + 0;
 
       ctr++;
     }
-    REQUIRE(ctr == 3);
+    REQUIRE(ctr == nrows);
   }
-  
+
+  SECTION("Check element count")
+  {
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      for (auto e : row)
+      {
+	// Silence unused variable warning
+        auto v = e;
+        v = v + 0;
+        
+        ctr++;
+      }
+    }
+    REQUIRE(ctr == nel);
+  }
+
+  SECTION("Check row element count")
+  {
+    const std::vector v = {1, 2, 3, 4};
+    auto ctr0           = 0;
+    for (auto i : v)
+    {
+      auto a = i;
+      a      = a + 0;
+      ctr0++;
+    }
+    std::cout << ctr0 << " " << v.size() << " " << std::distance(v.begin(), v.end()) << std::endl;
+    
+    auto ctr = 0;
+    for (auto row : csr)
+    {
+      const auto rowsize = ptr[ctr + 1] - ptr[ctr];
+      REQUIRE(std::distance(row.begin(), row.end()) == rowsize);
+    }    
+  }
+
   SECTION("Check strides")
   {
     SECTION("Check begins")
     {
-      auto ctr = 0;
+      auto startitr = ptr.begin();
       for (auto row : csr)
       {
-        REQUIRE(*row.begin() == val[ptr[ctr++]]);
+        REQUIRE(*row.begin() == val[*startitr]);
+	startitr++;
       }
     }
 
     SECTION("Check ends")
     {
-      auto ctr = 0;
+      auto enditr = ptr.begin() + 1;
       for (auto row : csr)
       {
-	if (ctr < 2)
-	{
-	  REQUIRE(*row.end() == val[ptr[++ctr]]);
-	}
+	REQUIRE(*row.end() == val[*enditr]);
+	enditr++;
       }
     }
   }
@@ -171,12 +226,9 @@ TEST_CASE("Parse Element Blocks", "[internals]")
   {
     const auto nodes = []() -> std::vector<cfg::parser::Node<3>>
     {
-      std::vector<cfg::parser::Node<3>> nodes{};
-      return nodes;
+      return {};
     }();
-    std::cout << "YO" << std::endl;
     const auto topo = cfg::parser::DataParser::parse(topo_reader, element_blocks, mode, element_hdr, nodes);
-    std::cout << "YOyoyo" << std::endl;
 
     REQUIRE(topo.nodes().size() == 0);
     REQUIRE(topo.nodes().local().size() == 0);
@@ -211,5 +263,21 @@ TEST_CASE("Parse Element Blocks", "[internals]")
     REQUIRE(topo.nodes().size() == 4);
     REQUIRE(topo.nodes().local().size() == 1);
     REQUIRE(topo.nodes().halo().size() == 3);
+  }
+}
+
+TEST_CASE("Take local elements", "[internals]")
+{
+  SECTION("No local nodes")
+  {
+    std::vector<cfg::parser::Node<3>> nodes{};
+
+    // Node element
+    const cfg::parser::ConnectivityVector<size_t> node_elt{0, {0, 1}, {0}};
+    REQUIRE(cfg::parser::take_elts(nodes, node_elt, cfg::parser::element_is_local).size() == 0);
+    
+    // Edge element
+    // Facet element
+    // Volume element    
   }
 }

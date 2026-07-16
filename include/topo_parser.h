@@ -26,12 +26,12 @@ namespace cfg::parser
     {
       if (!ptr.empty())
       {
-        _size = ptr.size() - 1;
-	if (ptr.back() > val.size() + 1)
+	if (ptr.back() > val.size())
 	{
-	  throw std::runtime_error("The last entry of ptr must be <= val.size() + 1");
+	  throw std::runtime_error("The last entry of ptr must be <= val.size()");
 	}
 
+        _size = ptr.size() - 1;
 	size_t prev = 0;
         for (const auto o : ptr)
         {
@@ -58,7 +58,7 @@ namespace cfg::parser
 
     [[nodiscard]] auto begin() const
     {
-      return Iterator(_ptr.begin(), *this);
+      return Iterator(_ptr.begin(), _ptr.end() - 1);
     }
 
     [[nodiscard]] auto end() const
@@ -68,22 +68,23 @@ namespace cfg::parser
         return begin();
       }
 
-      return Iterator(_ptr.end() - 1, *this);
+      return Iterator(_ptr.end() - 1, _ptr.end() - 1);
     }
 
    private:
-    std::vector<typename std::vector<T>::const_iterator> _ptr{};  // The row start vector
-    std::vector<T> _val{};                                        // The row values vector
+    using IterVec = std::vector<typename std::vector<T>::const_iterator>;
+    IterVec _ptr{};         // The row start vector
+    std::vector<T> _val{};  // The row values vector
     size_t _size{};
 
     class Iterator
     {
+      using NestedIterator = typename IterVec::const_iterator;
+
      public:
-      Iterator(typename std::vector<typename std::vector<T>::const_iterator>::const_iterator itstart,
-               const NestedVector<T>& vec)
-          : curr(itstart), next(itstart), last(vec._ptr.end() - 1)
+      Iterator(NestedIterator itstart, const NestedIterator last) : curr(itstart), next(itstart), _last(last)
       {
-        if (next != last)
+        if (next != _last)
         {
           next++;
         }
@@ -99,7 +100,7 @@ namespace cfg::parser
         return *next;
       }
 
-      bool operator!=(const Iterator& other)
+      [[nodiscard]] bool operator!=(const Iterator& other)
       {
         return this->curr != other.curr;
       }
@@ -110,9 +111,9 @@ namespace cfg::parser
         curr = next;
 
         // Advance ending iterators if we haven't hit the end
-        if (next != last)
+        if (next != _last)
         {
-          next++;
+          std::advance(next, 1);
         }
 
         return *this;
@@ -124,12 +125,9 @@ namespace cfg::parser
       }
 
      private:
-      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
-          curr;  //< The current position in the NestedVector
-      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
-          next;  //< The next position in the NestedVector
-      typename std::vector<typename std::vector<T>::const_iterator>::const_iterator
-          last;  //< The end of the NestedVector
+      NestedIterator curr;   //< The current position in the NestedVector
+      NestedIterator next;   //< The next position in the NestedVector
+      NestedIterator _last;  //< The end of the NestedVector
     };
   };
 
