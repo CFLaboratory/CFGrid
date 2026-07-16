@@ -6,17 +6,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <_node_parser.h>
+
 #include <catch2/catch_test_macros.hpp>
 
 #include <sstream>
-#include "utils.h"
 
-#include <_node_parser.h>
+#include <utils.h>
 
 TEST_CASE("Parse Node Header", "[internals]")
 {
   std::istringstream header("$Nodes\n1 2 7 5");  // Fake Nodes section with header
-  const auto mode = cfg::parser::Mode::ASCII;
+  const auto mode = cfg::reader::Mode::ASCII;
 
   const cfg::reader::SectionReader node_reader("Nodes", header);
 
@@ -34,7 +35,7 @@ TEST_CASE("Parse Node Blocks", "[internals]")
   std::istringstream node_blocks(
       "$Nodes\n0 1 0 1\n1\n0 0 1\n1 1 0 5\n9\n10\n11\n12\n13\n0 0 0.1\n0 0 0.3\n0 0 0.5\n0 0 0.7\n0 0 0.8");
 
-  const auto mode    = cfg::parser::Mode::ASCII;
+  const auto mode    = cfg::reader::Mode::ASCII;
   const int n_blocks = 2;
   const int n_nodes  = 6;
 
@@ -93,8 +94,8 @@ TEST_CASE("Validate Nodes (continuous)", "[internals]")
     for (auto& n : nodes)
     {
       n.natural_idx = idx;
-      n.global_idx = idx;
-      n.x   = x;
+      n.global_idx  = idx;
+      n.x           = x;
       idx++;
     }
 
@@ -154,8 +155,8 @@ TEST_CASE("Validate Nodes (discontinuous)", "[internals]")
     for (auto& n : nodes)
     {
       n.natural_idx = idx;
-      n.global_idx = idx;
-      n.x   = x;
+      n.global_idx  = idx;
+      n.x           = x;
       idx += 2;
     }
 

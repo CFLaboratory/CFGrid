@@ -4,14 +4,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-add_library(objreader OBJECT reader.cpp)
-target_include_directories(objreader PUBLIC ${CMAKE_SOURCE_DIR}/include)
+add_library(objparser OBJECT
+  _node_parser.cpp node_parser.cpp
+  topo_parser.cpp
+)
+target_include_directories(objparser PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-add_library(objnode_parser OBJECT _node_parser.cpp node_parser.cpp)
-target_include_directories(objnode_parser PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(objnode_parser objreader)
+add_library(objmesh OBJECT
+  gmsh.cpp
+)
+target_include_directories(objmesh PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(objmesh objparser)
 
-add_library(libcfg $<TARGET_OBJECTS:objreader> $<TARGET_OBJECTS:objnode_parser>)
+add_library(libcfg
+  $<TARGET_OBJECTS:objparser>
+  $<TARGET_OBJECTS:objmesh>
+)
 target_include_directories(libcfg PUBLIC ${CMAKE_SOURCE_DIR}/include)
 set_target_properties(libcfg PROPERTIES OUTPUT_NAME "cfg") # Prevents building "liblibcfg.x"
 
