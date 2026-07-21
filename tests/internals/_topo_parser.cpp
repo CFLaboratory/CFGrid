@@ -137,8 +137,11 @@ TEST_CASE("NestedVector", "[internals]")
       auto enditr = ptr.begin() + 1;
       for (auto row : csr)
       {
-	REQUIRE(*row.end() == val[*enditr]);
-	enditr++;
+	if (enditr != ptr.end() - 1)
+	{ // Don't check past the end of val
+	  REQUIRE(*row.end() == val[*enditr]);
+	  enditr++;
+	}
       }
     }
   }
