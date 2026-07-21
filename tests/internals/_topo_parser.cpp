@@ -111,21 +111,12 @@ TEST_CASE("NestedVector", "[internals]")
 
   SECTION("Check row element count")
   {
-    const std::vector v = {1, 2, 3, 4};
-    auto ctr0           = 0;
-    for (auto i : v)
-    {
-      auto a = i;
-      a      = a + 0;
-      ctr0++;
-    }
-    std::cout << ctr0 << " " << v.size() << " " << std::distance(v.begin(), v.end()) << std::endl;
-    
     auto ctr = 0;
     for (auto row : csr)
     {
       const auto rowsize = ptr[ctr + 1] - ptr[ctr];
       REQUIRE(std::distance(row.begin(), row.end()) == rowsize);
+      ctr++;
     }    
   }
 
