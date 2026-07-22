@@ -6,6 +6,7 @@
 #ifndef __CFG_TOPO_PARSER_H_
 #define __CFG_TOPO_PARSER_H_
 
+#include <cstddef>
 #include <fstream>
 #include <stdexcept>
 
@@ -50,6 +51,21 @@ namespace cfg::parser
         _size = 0;
       }
     }
+
+    auto operator[](std::size_t idx)
+    {
+      return Iterator(_ptr.begin() + idx, _ptr.end() - 1);      
+    }        
+
+    void push_back(std::vector<T> vals)
+    {
+      _size += 1;
+      for (const auto& v : vals)
+      {
+	_val.push_back(v);        
+      }        
+      _ptr.push_back(_val.begin() + vals.size());
+    }        
 
     [[nodiscard]] size_t size() const
     {

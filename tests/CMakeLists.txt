@@ -66,4 +66,5 @@ endfunction()
 
 add_subdirectory(reader)
 add_subdirectory(utils)
+add_subdirectory(topo)
 add_subdirectory(internals)
